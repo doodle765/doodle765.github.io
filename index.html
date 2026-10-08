@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0B0F14">
+<title>GuideLens — Beta Versions</title>
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .ver-tile{width:52px;height:52px;flex:0 0 auto;border-radius:16px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:19px;letter-spacing:.02em;}
+  .ver-note{font-size:15.5px;font-weight:400;opacity:.75;margin-top:3px;}
+</style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="i-lens" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.2"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8"/></symbol>
+</svg>
+
+<header class="appbar">
+  <div class="brand">
+    <svg class="ic brand-ic"><use href="#i-lens"/></svg>
+    <span class="brand-name">Guide<span>Lens</span></span>
+  </div>
+  <div class="appbar-actions">
+    <button class="iconbtn" id="themeBtn" aria-pressed="false" aria-label="Toggle dark mode"><svg class="ic"><use href="#i-moon"/></svg></button>
+  </div>
+</header>
+
+<main>
+<section class="screen active" aria-label="Beta versions">
+  <div class="hero-card">
+    <p class="eyebrow">Testing builds</p>
+    <p class="hero-line">Pick a <b>beta version</b> to open it.</p>
+  </div>
+  <div class="stack">
+    <a class="cardbtn" href="/Ammar/web-beta-6/" style="text-decoration:none">
+      <span class="ver-tile tile-teal">β6</span>
+      <span class="btn-label">Web Beta 6<span class="ver-note">Latest build — tap to open</span></span>
+      <svg class="ic" style="margin-left:auto;color:var(--text2)"><use href="#i-arrow"/></svg>
+    </a>
+    <a class="cardbtn" href="/Ammar/web-beta-5/" style="text-decoration:none">
+      <span class="ver-tile tile-blue">β5</span>
+      <span class="btn-label">Web Beta 5<span class="ver-note">Previous build</span></span>
+      <svg class="ic" style="margin-left:auto;color:var(--text2)"><use href="#i-arrow"/></svg>
+    </a>
+    <a class="cardbtn" href="/Ammar/web-beta-4/" style="text-decoration:none">
+      <span class="ver-tile tile-violet">β4</span>
+      <span class="btn-label">Web Beta 4<span class="ver-note">Earlier build</span></span>
+      <svg class="ic" style="margin-left:auto;color:var(--text2)"><use href="#i-arrow"/></svg>
+    </a>
+    <a class="cardbtn" href="/Ammar/web-beta-2/" style="text-decoration:none">
+      <span class="ver-tile tile-amber">β2</span>
+      <span class="btn-label">Web Beta 2<span class="ver-note">Older build</span></span>
+      <svg class="ic" style="margin-left:auto;color:var(--text2)"><use href="#i-arrow"/></svg>
+    </a>
+    <a class="cardbtn" href="/Ammar/web-beta-1/" style="text-decoration:none">
+      <span class="ver-tile tile-rose">β1</span>
+      <span class="btn-label">Web Beta 1<span class="ver-note">First build</span></span>
+      <svg class="ic" style="margin-left:auto;color:var(--text2)"><use href="#i-arrow"/></svg>
+    </a>
+  </div>
+  <p class="footnote">Each button opens that build in this tab.<br>Add this page to your home screen for quick access.</p>
+</section>
+</main>
+
+<script>
+// theme toggle (shares the same preference as the app)
+const DEF_THEME = "dark";
+let theme = (JSON.parse(localStorage.getItem("gl_settings")||"{}").theme) || DEF_THEME;
+const btn = document.getElementById("themeBtn");
+function apply(){
+  document.documentElement.dataset.theme = theme;
+  const light = theme === "light";
+  btn.innerHTML = '<svg class="ic"><use href="#i-'+(light?"moon":"sun")+'"/></svg>';
+  btn.setAttribute("aria-pressed", light);
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", light ? "#EEF2F7" : "#0B0F14");
+}
+btn.onclick = () => {
+  theme = theme === "light" ? "dark" : "light";
+  let s = {}; try{ s = JSON.parse(localStorage.getItem("gl_settings")||"{}"); }catch(e){}
+  s.theme = theme; localStorage.setItem("gl_settings", JSON.stringify(s));
+  apply();
+};
+apply();
+</script>
+</body>
+</html>
