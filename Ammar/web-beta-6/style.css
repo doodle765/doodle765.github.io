@@ -169,7 +169,15 @@ a{color:var(--accent);}
 .tile-gray{background:var(--chip-bg);color:var(--text2);}
 .tile-red{background:var(--red-soft);color:var(--red);}
 
-.sos-card{border-color:color-mix(in srgb, var(--red) 45%, transparent);}
+/* SOS home card — must beat .cardbtn (defined above): full red, always visible */
+.cardbtn.sos-card{
+  background:var(--red); color:var(--red-ink);
+  border:2.5px solid color-mix(in srgb, var(--red) 70%, #00000055);
+  box-shadow:0 8px 24px color-mix(in srgb, var(--red) 38%, transparent);
+}
+.cardbtn.sos-card:active{transform:scale(.98);}
+.cardbtn.sos-card small{opacity:.85;}
+.cardbtn.sos-card .tile{background:rgba(255,255,255,.25);color:inherit;}
 .footnote{text-align:center;color:var(--text2);font-size:16px;margin:22px 8px 0;line-height:1.6;}
 
 /* Simple view — home */
