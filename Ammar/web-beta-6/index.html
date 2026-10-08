@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0B0F14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>GuideLens — AI Navigation for the Visually Impaired</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== SVG ICON SPRITE (stroke = currentColor) ===== -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/><path d="M8.5 21h7"/></symbol>
+  <symbol id="i-nav" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4 13.4 13.4 8.4 15.6 10.6 10.6z"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21.5s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24"><path d="M12 12 18.5 5.5"/><path d="M4.5 8.5a8.5 8.5 0 0 1 0 7"/><path d="M8 5.3a8.5 8.5 0 0 1 8 0"/><path d="M19.5 8.5a8.5 8.5 0 0 1 0 7"/><circle cx="12" cy="12" r="1.6"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l4.5 4.5V21H6z"/><path d="M14 3v4.5h4.5"/><path d="M9 12.5h6M9 16.5h6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 22 20.5H2z"/><path d="M12 9.8v4.7"/><path d="M12 17.4h.01"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M12 2.8v2.7M12 18.5v2.7M2.8 12h2.7M18.5 12h2.7M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 5.5 7.5 12l7 7"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9.5v5h3.8L13 19V5L7.8 9.5z"/><path d="M16.3 9a4.3 4.3 0 0 1 0 6"/></symbol>
+  <symbol id="i-batt" viewBox="0 0 24 24"><rect x="2" y="8" width="17" height="8.5" rx="2"/><path d="M22 11.2v2.3"/><rect x="4" y="10" width="9" height="4.5" rx="1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-gps" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5V6M12 18v3.5M2.5 12H6M18 12h3.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8"/></symbol>
+  <symbol id="i-text" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h10"/><path d="M4 18h13"/></symbol>
+  <symbol id="i-lens" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.2"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+</svg>
+
+<!-- ===== TOP BAR ===== -->
+<header class="appbar">
+  <div class="brand">
+    <svg class="ic brand-ic"><use href="#i-lens"/></svg>
+    <span class="brand-name">Guide<span>Lens</span></span>
+  </div>
+  <div class="chips">
+    <span class="chip" id="gpsStatus" role="status"><svg class="ic sm"><use href="#i-gps"/></svg> —</span>
+    <span class="chip" id="batt" role="status"><svg class="ic sm"><use href="#i-batt"/></svg> —</span>
+  </div>
+  <div class="appbar-actions">
+    <button class="iconbtn" id="simpleBtn" aria-pressed="false" aria-label="Toggle simple view for elderly users"><svg class="ic"><use href="#i-text"/></svg></button>
+    <button class="iconbtn" id="themeBtn" aria-pressed="false" aria-label="Toggle dark mode"><svg class="ic"><use href="#i-moon"/></svg></button>
+  </div>
+</header>
+
+<div id="live" aria-live="polite"></div>
+<div id="alerts" aria-live="assertive"></div>
+
+<main>
+<!-- ============ HOME ============ -->
+<section id="scr-home" class="screen active" aria-label="Home">
+  <div class="hero-card">
+    <p class="eyebrow">Ready when you are</p>
+    <p class="hero-line">Hold the button and say<br><b>“Navigate to the library”</b></p>
+  </div>
+  <div class="stack">
+    <button class="btn-primary btn-hold btn-talk" id="btnTalk" aria-label="Hold to talk. Say navigate to, where am I, read this, or help.">
+      <svg class="ic ic-lg"><use href="#i-mic"/></svg>
+      <span class="btn-label">Hold to Talk<small>Say “help” anytime</small></span>
+    </button>
+
+    <button class="cardbtn" id="btnNavigate" aria-label="Navigate to a destination">
+      <span class="tile tile-teal"><svg class="ic"><use href="#i-nav"/></svg></span>
+      <span class="btn-label">Navigate somewhere<small>Voice-guided walking route</small></span>
+    </button>
+
+    <button class="cardbtn" id="btnDetect" aria-label="Start obstacle detection camera">
+      <span class="tile tile-blue"><svg class="ic"><use href="#i-eye"/></svg></span>
+      <span class="btn-label">Obstacle detection<small>Poles, walls, people &amp; more</small></span>
+    </button>
+
+    <button class="cardbtn" id="btnWhereAmI" aria-label="Where am I">
+      <span class="tile tile-violet"><svg class="ic"><use href="#i-pin"/></svg></span>
+      <span class="btn-label">Where am I?<small>Speaks your current address</small></span>
+    </button>
+
+    <div class="duo">
+      <button class="cardbtn" id="btnAround" aria-label="What is around me">
+        <span class="tile tile-amber"><svg class="ic"><use href="#i-scan"/></svg></span>
+        <span class="btn-label">Around me</span>
+      </button>
+      <button class="cardbtn" id="btnRead" aria-label="Read sign or text">
+        <span class="tile tile-rose"><svg class="ic"><use href="#i-doc"/></svg></span>
+        <span class="btn-label">Read a sign</span>
+      </button>
+    </div>
+
+    <button class="cardbtn secondary" id="btnSettings" aria-label="Settings">
+      <span class="tile tile-gray"><svg class="ic"><use href="#i-gear"/></svg></span>
+      <span class="btn-label">Settings<small>Voice, alerts, contact</small></span>
+    </button>
+
+    <button class="cardbtn simple-only" id="btnMore" aria-label="More options and settings">
+      <span class="tile tile-gray"><svg class="ic"><use href="#i-grid"/></svg></span>
+      <span class="btn-label">More options<small>Extra features &amp; settings</small></span>
+    </button>
+
+    <button class="cardbtn btn-danger sos-card" id="btnSOS" aria-label="Emergency S O S">
+      <span class="tile tile-red"><svg class="ic"><use href="#i-alert"/></svg></span>
+      <span class="btn-label">Emergency SOS<small>Text your location to a contact</small></span>
+    </button>
+  </div>
+  <p class="footnote">Tip: hold <b>Space</b> on a keyboard to talk. Best in Chrome on Android.<br>GuideLens assists your cane — it never replaces it.</p>
+</section>
+
+<!-- ============ NAVIGATE ============ -->
+<section id="scr-nav" class="screen" aria-label="Navigation">
+  <div class="scr-head">
+    <button class="iconbtn" id="navBack" aria-label="Back home"><svg class="ic"><use href="#i-back"/></svg></button>
+    <h2>Navigate</h2>
+  </div>
+  <div class="stack">
+    <input type="text" id="navDestInput" aria-label="Destination" placeholder="e.g. Central Library" autocomplete="off">
+    <button class="btn-primary" id="navGo">Start walking route</button>
+    <div id="navStatus" class="statuscard" role="status" aria-live="polite">Idle.</div>
+    <button class="btn-danger" id="navStop">Stop navigation</button>
+  </div>
+</section>
+
+<!-- ============ CAMERA ============ -->
+<section id="scr-camera" class="screen" aria-label="Obstacle detection">
+  <div class="scr-head">
+    <button class="iconbtn" id="camStopTop" aria-label="Stop detection and go back"><svg class="ic"><use href="#i-back"/></svg></button>
+    <h2>Obstacle detection</h2>
+  </div>
+  <div class="stack">
+    <div id="camwrap">
+      <video id="video" playsinline muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
+    <div id="camStatus" class="statuscard" role="status" aria-live="polite">Starting camera…</div>
+    <button id="camStop">Stop detection</button>
+  </div>
+</section>
+
+<!-- ============ SOS ============ -->
+<section id="scr-sos" class="screen" aria-label="SOS">
+  <div class="scr-head">
+    <button class="iconbtn" id="sosBack" aria-label="Back home"><svg class="ic"><use href="#i-back"/></svg></button>
+    <h2>Emergency SOS</h2>
+  </div>
+  <div class="sos-panel">
+    <svg class="ic ic-xl"><use href="#i-alert"/></svg>
+    <p class="small">Pressing the button opens a text message to your emergency contact with your exact location.</p>
+  </div>
+  <div class="stack">
+    <button class="btn-danger" id="sosSend" style="min-height:128px;font-size:26px">SEND SOS WITH MY LOCATION</button>
+    <p class="small">Set the contact number in Settings.</p>
+  </div>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<section id="scr-settings" class="screen" aria-label="Settings">
+  <div class="scr-head">
+    <button class="iconbtn" id="setBack" aria-label="Back home"><svg class="ic"><use href="#i-back"/></svg></button>
+    <h2>Settings</h2>
+  </div>
+
+  <p class="eyebrow" style="margin:4px 2px 8px">Appearance</p>
+  <div class="group">
+    <div class="seg" role="radiogroup" aria-label="Theme">
+      <label><input type="radio" name="theme" value="dark"><span><svg class="ic sm"><use href="#i-moon"/></svg> Dark</span></label>
+      <label><input type="radio" name="theme" value="light"><span><svg class="ic sm"><use href="#i-sun"/></svg> Light</span></label>
+    </div>
+    <label class="row"><input type="checkbox" id="chkSimple" class="switch"> Simple view <small class="row-sub">Bigger buttons, fewer options — for elderly users</small></label>
+  </div>
+
+  <p class="eyebrow" style="margin:18px 2px 8px">Feedback</p>
+  <div class="group">
+    <label class="row"><input type="checkbox" id="chkAudio" class="switch"> Spoken audio</label>
+    <label class="row"><input type="checkbox" id="chkHaptics" class="switch"> Vibration</label>
+    <label class="row"><input type="checkbox" id="chkStepFree" class="switch"> Prefer step-free routes</label>
+    <div class="row slider-row">
+      <span>Speech speed <b id="rateVal">1.0×</b></span>
+      <input type="range" id="setRate" min="0.6" max="1.6" step="0.1" value="1" aria-label="Speech speed">
+    </div>
+  </div>
+
+  <p class="eyebrow" style="margin:18px 2px 8px">Alerts</p>
+  <div class="group">
+    <p class="group-label">How much it speaks</p>
+    <div class="seg" role="radiogroup" aria-label="Verbosity">
+      <label><input type="radio" name="verb" value="minimal"><span>Minimal</span></label>
+      <label><input type="radio" name="verb" value="standard"><span>Standard</span></label>
+      <label><input type="radio" name="verb" value="verbose"><span>Verbose</span></label>
+    </div>
+    <p class="group-label">Alert distance</p>
+    <div class="seg" role="radiogroup" aria-label="Alert distance">
+      <label><input type="radio" name="sens" value="near"><span>Near</span></label>
+      <label><input type="radio" name="sens" value="standard"><span>Standard</span></label>
+      <label><input type="radio" name="sens" value="far"><span>Far</span></label>
+    </div>
+  </div>
+
+  <p class="eyebrow" style="margin:18px 2px 8px">Safety</p>
+  <div class="group">
+    <p class="group-label">Emergency contact phone number</p>
+    <input type="tel" id="setContact" placeholder="+1 555 123 4567" aria-label="Emergency contact number">
+  </div>
+
+  <div class="stack" style="margin-top:18px">
+    <button class="btn-primary" id="btnSaveSettings">Save settings</button>
+    <button id="btnTestVoice"><svg class="ic"><use href="#i-speaker"/></svg> Test voice</button>
+  </div>
+</section>
+</main>
+
+<dialog id="disclaimer">
+  <svg class="ic ic-xl" style="color:var(--warn)"><use href="#i-alert"/></svg>
+  <h2>Before you start</h2>
+  <p>GuideLens is an <b>experimental assistive aid</b>. It helps you notice obstacles, read signs and follow walking routes — but it <b>cannot replace</b> your white cane, guide dog, or your own judgment.</p>
+  <p>Always cross roads the way you were trained. The app will never tell you a road is "safe to cross" — it only reports what it sees.</p>
+  <p class="small">Camera video never leaves your phone. Location is used only when you ask.</p>
+  <div class="stack" style="margin-top:14px">
+    <button class="btn-primary" id="agreeBtn">I understand — let's go</button>
+  </div>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
