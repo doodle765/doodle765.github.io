@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0B0F14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>GuideLens — AI Navigation for the Visually Impaired</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0F14; --elev:#161D26; --alt:#1E2833;
+  --text:#F2F7FF; --text2:#A9BACB;
+  --safe:#35D0BA; --warn:#FFB020; --danger:#FF4D4F; --focus:#7AB8FF;
+  --touch:88px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:"Atkinson Hyperlegible",Roboto,system-ui,sans-serif;
+  font-size:20px; line-height:1.45;}
+button{font-family:inherit;font-size:22px;font-weight:700;color:var(--text);
+  background:var(--elev);border:2px solid #2A3644;border-radius:20px;
+  min-height:var(--touch);padding:12px 20px;width:100%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:12px;text-align:center;}
+button:active{transform:scale(.98);background:var(--alt);}
+button:focus-visible{outline:4px solid var(--focus);outline-offset:3px;}
+.btn-primary{background:var(--safe);color:#06231F;border-color:transparent;}
+.btn-danger{background:var(--danger);color:#2B0606;border-color:transparent;}
+.btn-warn{background:var(--warn);color:#3A2600;border-color:transparent;}
+.btn-hold{user-select:none;-webkit-user-select:none;touch-action:none;}
+h1{font-size:34px;margin:0;} h2{font-size:28px;margin:0 0 8px;}
+.small{font-size:18px;color:var(--text2);}
+.statusbar{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;
+  background:var(--alt);padding:10px 14px;font-size:18px;color:var(--text2);
+  border-bottom:1px solid #2A3644;}
+.screen{display:none;max-width:520px;margin:0 auto;padding:16px 16px 40px;
+  min-height:calc(100dvh - 46px);}
+.screen.active{display:block;}
+.stack{display:flex;flex-direction:column;gap:14px;margin-top:16px;}
+.wordmark{text-align:center;font-size:30px;font-weight:700;letter-spacing:.5px;
+  color:var(--safe);margin:8px 0 2px;}
+.wordmark span{color:var(--text);}
+.hero{text-align:center;margin:0 0 4px;}
+input[type=text],input[type=tel]{width:100%;min-height:64px;font-size:22px;
+  background:var(--elev);border:2px solid #2A3644;border-radius:16px;color:var(--text);padding:12px 16px;}
+input:focus-visible,select:focus-visible{outline:4px solid var(--focus);outline-offset:2px;}
+label.row{display:flex;align-items:center;gap:14px;min-height:72px;background:var(--elev);
+  border-radius:16px;padding:10px 16px;font-size:22px;border:2px solid transparent;}
+label.row:has(input:checked){border-color:var(--safe);}
+input[type=radio],input[type=checkbox]{width:32px;height:32px;accent-color:var(--safe);}
+input[type=range]{width:100%;height:48px;accent-color:var(--safe);}
+video{width:100%;border-radius:16px;background:#000;display:block;}
+#camwrap{position:relative;border-radius:16px;overflow:hidden;border:2px solid #2A3644;}
+#overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.chip{display:inline-block;background:#0B0F14DD;color:#fff;font-size:18px;font-weight:700;
+  padding:4px 10px;border-radius:999px;}
+#live,#alerts{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+#navStatus,#camStatus,#ocrStatus{font-size:24px;font-weight:700;background:var(--elev);
+  border-radius:16px;padding:16px;min-height:88px;border:2px solid #2A3644;}
+dialog{background:var(--elev);color:var(--text);border:2px solid #2A3644;border-radius:24px;
+  max-width:480px;width:92%;padding:24px;}
+dialog::backdrop{background:rgba(0,0,0,.7);}
+.divider{border:none;border-top:1px solid #2A3644;margin:18px 0;}
+.badge{font-size:16px;background:var(--alt);border-radius:999px;padding:4px 12px;color:var(--text2);}
+a{color:var(--focus);}
+</style>
+</head>
+<body>
+
+<div class="statusbar" aria-label="Status">
+  <span id="gpsStatus" role="status"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Location: —</span>
+  <span id="batt" role="status"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"/><line x1="23" y1="13" x2="23" y2="11"/><rect x="4" y="9" width="8" height="6" rx="1" ry="1" fill="currentColor" stroke="none"/></svg> —</span>
+</div>
+
+<!-- Live regions for screen readers -->
+<div id="live" aria-live="polite"></div>
+<div id="alerts" aria-live="assertive"></div>
+
+<!-- ============ HOME ============ -->
+<section id="scr-home" class="screen active" aria-label="Home">
+  <p class="wordmark">Guide<span>Lens</span></p>
+  <p class="hero small">Talent Fest Project<br>3rd Beta Build</p>
+  <div class="stack">
+    <button class="btn-primary" id="btnTalk" aria-label="Hold to talk. Say navigate to, where am I, read this, or help."><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg> Hold to Talk</button>
+    <button id="btnNavigate" aria-label="Navigate to a destination"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> Navigate somewhere</button>
+    <button id="btnDetect" aria-label="Start obstacle detection camera"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Start obstacle detection</button>
+    <button id="btnWhereAmI" aria-label="Where am I"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Where am I?</button>
+    <button id="btnAround" aria-label="What is around me"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="8" cy="9" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="9" r="1" fill="currentColor" stroke="none"/></svg> What's around me?</button>
+    <button id="btnRead" aria-label="Read sign or text"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Read this sign</button>
+    <button class="btn-danger" id="btnSOS" aria-label="Emergency S O S"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> SOS</button>
+    <button id="btnSettings" aria-label="Settings"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</button>
+  </div>
+  <p class="small" style="margin-top:18px">Tip: hold <b>Space</b> on a keyboard to talk. Best in Chrome on Android.</p>
+</section>
+
+<!-- ============ NAVIGATE ============ -->
+<section id="scr-nav" class="screen" aria-label="Navigation">
+  <h2><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> Navigate</h2>
+  <p class="small">Say a place name or address, then Go.</p>
+  <div class="stack">
+    <input type="text" id="navDestInput" aria-label="Destination" placeholder="e.g. Central Library" autocomplete="off">
+    <button class="btn-primary" id="navGo">Start walking route</button>
+    <div id="navStatus" role="status" aria-live="polite">Idle.</div>
+    <button class="btn-danger" id="navStop">Stop navigation</button>
+    <button id="navBack">← Back home</button>
+  </div>
+</section>
+
+<!-- ============ CAMERA ============ -->
+<section id="scr-camera" class="screen" aria-label="Obstacle detection">
+  <h2><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Obstacle detection</h2>
+  <div class="stack">
+    <div id="camwrap">
+      <video id="video" playsinline muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
+    <div id="camStatus" role="status" aria-live="polite">Starting camera…</div>
+    <button id="camStop">Stop detection</button>
+  </div>
+</section>
+
+<!-- ============ SOS ============ -->
+<section id="scr-sos" class="screen" aria-label="SOS">
+  <h2><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> SOS</h2>
+  <div id="ocrStatus" role="status" aria-live="polite"></div>
+  <div class="stack">
+    <button class="btn-danger" id="sosSend" style="min-height:120px;font-size:28px">SEND SOS WITH MY LOCATION</button>
+    <p class="small">Opens a text message to your emergency contact with your exact location. Set the contact number in Settings.</p>
+    <button id="sosBack">← Back home</button>
+  </div>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<section id="scr-settings" class="screen" aria-label="Settings">
+  <h2><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</h2>
+  <div class="stack">
+    <label class="row"><input type="checkbox" id="chkAudio" checked> Spoken audio</label>
+    <label class="row"><input type="checkbox" id="chkHaptics" checked> Vibration</label>
+    <label class="row"><input type="checkbox" id="chkStepFree"> Prefer step-free routes</label>
+
+    <p class="small" style="margin:6px 0 0">How much it speaks</p>
+    <label class="row"><input type="radio" name="verb" value="minimal"> Minimal — only dangers</label>
+    <label class="row"><input type="radio" name="verb" value="standard" checked> Standard</label>
+    <label class="row"><input type="radio" name="verb" value="verbose"> Verbose</label>
+
+    <p class="small" style="margin:6px 0 0">Alert distance</p>
+    <label class="row"><input type="radio" name="sens" value="near"> Near</label>
+    <label class="row"><input type="radio" name="sens" value="standard" checked> Standard</label>
+    <label class="row"><input type="radio" name="sens" value="far"> Far</label>
+
+    <p class="small" style="margin:6px 0 0">Speech speed: <b id="rateVal">1.0×</b></p>
+    <input type="range" id="setRate" min="0.6" max="1.6" step="0.1" value="1" aria-label="Speech speed">
+
+    <p class="small" style="margin:6px 0 0">Emergency contact phone number</p>
+    <input type="tel" id="setContact" placeholder="+1 555 123 4567" aria-label="Emergency contact number">
+
+    <button class="btn-primary" id="btnSaveSettings">Save settings</button>
+    <button id="btnTestVoice"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg> Test voice</button>
+    <button id="setBack">← Back home</button>
+  </div>
+</section>
+
+<!-- First-run disclaimer -->
+<dialog id="disclaimer">
+  <h2>Before you start</h2>
+  <p>GuideLens is an <b>experimental assistive aid</b>. It helps you notice obstacles, read signs and follow walking routes — but it <b>cannot replace</b> your white cane, guide dog, or your own judgment.</p>
+  <p>Always cross roads the way you were trained. The app will never tell you a road is "safe to cross" — it only reports what it sees.</p>
+  <p class="small">Camera video never leaves your phone. Location is used only when you ask.</p>
+  <div class="stack" style="margin-top:14px">
+    <button class="btn-primary" id="agreeBtn">I understand — let's go</button>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+/* ================= STATE ================= */
+const $ = id => document.getElementById(id);
+const DEF = {audio:true,haptics:true,stepFree:false,verbosity:"standard",sensitivity:"standard",rate:1.0,contact:""};
+let S = Object.assign({}, DEF, JSON.parse(localStorage.getItem("gl_settings")||"{}"));
+let pos = null;                    // {lat,lng,heading,accuracy}
+let lastSpoken = "", lastAlert = {}, model = null, stream = null, camTimer = null;
+let nav = null;                    // {dest:{lat,lng,label}, steps:[], coords:[], stepIdx, destPoint, lastRecalc}
+let ocrBusy = false;
+
+/* ================= SPEECH ================= */
+function speak(text, opt={}){
+  lastSpoken = text;
+  $("live").textContent = text;
+  if(!S.audio) return;
+  try{
+    if(opt.priority) speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = S.rate; u.lang = "en-US"; u.pitch = 1;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function buzz(pattern){ if(S.haptics && navigator.vibrate) navigator.vibrate(pattern); }
+function distWord(d){
+  if(d<5) return "very close";
+  if(d<15) return "about "+Math.round(d/5)*5+" meters";
+  return "about "+Math.round(d/10)*10+" meters";
+}
+
+/* ================= UI ================= */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+/* ================= GEOLOCATION ================= */
+function startGeo(){
+  if(!navigator.geolocation){ $("gpsStatus").textContent="<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Location not supported"; return; }
+  navigator.geolocation.watchPosition(p=>{
+    pos = {lat:p.coords.latitude, lng:p.coords.longitude, heading:p.coords.heading, accuracy:p.coords.accuracy};
+    $("gpsStatus").textContent = "<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Location: ±"+Math.round(p.coords.accuracy)+" m";
+    navTick();
+  }, e=>{ $("gpsStatus").textContent="<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Location: permission needed"; }, {enableHighAccuracy:true, maximumAge:1000});
+}
+async function whereAmI(){
+  if(!pos){ speak("I don't have your location yet. Please allow location access."); return; }
+  speak("Getting your location…");
+  try{
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${pos.lat}&lon=${pos.lng}&accept-language=en`);
+    const j = await r.json();
+    const a = j.address||{};
+    const place = [a.house_number, a.road, a.suburb||a.neighbourhood, a.city||a.town||a.village].filter(Boolean).join(", ");
+    speak(place ? "You are at "+place+". GPS accuracy about "+Math.round(pos.accuracy)+" meters." : "You are at coordinates "+pos.lat.toFixed(5)+", "+pos.lng.toFixed(5)+".");
+  }catch(e){ speak("I couldn't reach the map service. Coordinates "+pos.lat.toFixed(5)+", "+pos.lng.toFixed(5)+"."); }
+}
+
+/* ================= ROUTING (OSRM walking via openstreetmap.de) ================= */
+function hav(a,b){const R=6371000,t=Math.PI/180;
+  const dLa=(b.lat-a.lat)*t,dLo=(b.lng-a.lng)*t;
+  const h=Math.sin(dLa/2)**2+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));}
+function decodePolyline(str){let i=0,la=0,ln=0,c=[];
+  while(i<str.length){let b,s=0,r=0;do{b=str.charCodeAt(i++)-63;r|=(b&31)<<s;s+=5}while(b>=32);la+=(r&1)?~(r>>1):(r>>1);
+  s=0;r=0;do{b=str.charCodeAt(i++)-63;r|=(b&31)<<s;s+=5}while(b>=32);ln+=(r&1)?~(r>>1):(r>>1);
+  c.push({lat:la/1e5,lng:ln/1e5});}return c;}
+function maneuverText(st){
+  const m=(st.maneuver||{}).type||"", mod=(st.maneuver||{}).modifier||"";
+  if(m.includes("depart")) return "Start walking"+(st.name?" on "+st.name:"");
+  if(m.includes("roundabout")) return "Take the roundabout, exit toward "+(st.name||"the exit");
+  if(m.includes("arrive")) return "You are arriving";
+  if(m.startsWith("turn")||m.startsWith("new name")){
+    if(mod.includes("left")&&!mod.includes("slight")) return "Turn left"+(st.name?" onto "+st.name:"");
+    if(mod.includes("right")&&!mod.includes("slight")) return "Turn right"+(st.name?" onto "+st.name:"");
+    if(mod.includes("slight left")) return "Bear slight left";
+    if(mod.includes("slight right")) return "Bear slight right";
+    if(mod.includes("sharp left")) return "Turn sharp left";
+    if(mod.includes("sharp right")) return "Turn sharp right";
+    if(mod.includes("uturn")) return "Make a U-turn";
+  }
+  return "Continue straight"+(st.name?" on "+st.name:"");
+}
+async function geocode(q){
+  const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=en&q=${encodeURIComponent(q)}`);
+  const j = await r.json();
+  if(!j.length) return null;
+  return {lat:+j[0].lat, lng:+j[0].lon, label:j[0].display_name.split(",")[0]};
+}
+async function fetchRoute(a,b){
+  const url=`https://routing.openstreetmap.de/routed-foot/route/v1/foot/${a.lng},${a.lat};${b.lng},${b.lat}?overview=full&steps=true&geometries=polyline`;
+  const r=await fetch(url); const j=await r.json();
+  if(!j.routes||!j.routes.length) throw new Error("no route");
+  const rt=j.routes[0];
+  return {coords:decodePolyline(rt.geometry), steps:rt.legs[0].steps,
+          destPoint:b, label:b.label, lastRecalc:0};
+}
+async function navigateTo(place){
+  if(!pos){ speak("I need your location first. Please allow location access."); return; }
+  speak("Looking for "+place+"…");
+  let dest;
+  try{ dest = await geocode(place); }catch(e){}
+  if(!dest){ speak("Sorry, I couldn't find "+place+". Try a nearby landmark or a full address."); return; }
+  try{
+    nav = await fetchRoute(pos, dest);
+    nav.stepIdx = 0; nav.announcedPre=false; nav.announcedNow=false;
+    const secs = nav.steps.length? Math.round((nav.steps[nav.steps.length-1].distance+ (nav.steps[nav.steps.length-1].maneuver?0:0))/1.3) : 0;
+    show("scr-nav");
+    $("navStatus").textContent = "Route to "+dest.label+" — "+Math.round(routeLen(nav.coords))+" m.";
+    speak("Route set to "+dest.label+". About "+Math.round(routeLen(nav.coords))+" meters, roughly "+Math.max(1,Math.round(routeLen(nav.coords)/80))+" minutes walking. Say 'stop' anytime.");
+    buzz([60,80,60]);
+  }catch(e){ speak("I couldn't find a walking route there. Please try again."); }
+}
+function routeLen(c){let d=0;for(let i=1;i<c.length;i++)d+=hav(c[i-1],c[i]);return d;}
+function nearestDistToRoute(pt,coords){let m=1e9;for(let i=0;i<coords.length;i++){const d=hav(pt,coords[i]);if(d<m)m=d;}return m;}
+function navTick(){
+  if(!nav||!pos) return;
+  const step = nav.steps[nav.stepIdx];
+  if(!step){ finishNav(); return; }
+  const end = {lat:step.maneuver.location[1], lng:step.maneuver.location[0]};
+  const d = hav(pos,end);
+  // arrival
+  if(hav(pos,nav.destPoint) < 20){ finishNav(); return; }
+  // advance steps
+  while(nav.stepIdx < nav.steps.length-1 && d < 8){
+    nav.stepIdx++; nav.announcedPre=false; nav.announcedNow=false; return navTick();
+  }
+  // announcements
+  if(!nav.announcedPre && d < 22 && d >= 6){
+    nav.announcedPre=true;
+    const t=maneuverText(step);
+    speak((d>12?"In about "+Math.round(d/5)*5+" meters, ":"")+t+".");
+    buzz([60,80,60]);
+  }
+  if(!nav.announcedNow && d < 6){
+    nav.announcedNow=true;
+    speak("Now. "+maneuverText(step)+".", {priority:true});
+  }
+  // off-route recalc (max every 15s)
+  const off = nearestDistToRoute(pos, nav.coords);
+  if(off > 35 && Date.now()-nav.lastRecalc > 15000){
+    nav.lastRecalc = Date.now();
+    speak("You seem off the route. Recalculating.", {priority:true}); buzz(300);
+    fetchRoute(pos, {lat:nav.destPoint.lat, lng:nav.destPoint.lng, label:nav.label})
+      .then(r=>{nav.coords=r.coords; nav.steps=r.steps; nav.stepIdx=0; nav.announcedPre=false; nav.announcedNow=false;})
+      .catch(()=>{});
+  }
+}
+function finishNav(){
+  speak("You have arrived near "+(nav?nav.label:"your destination")+". I will stop guiding now.", {priority:true});
+  buzz([60,80,60]);
+  $("navStatus").textContent="Arrived.";
+  nav=null;
+}
+function stopNavigation(silent){
+  if(!nav) return;
+  nav=null; $("navStatus").textContent="Idle.";
+  if(!silent) speak("Navigation stopped.");
+}
+
+/* ================= VISION (TensorFlow.js coco-ssd) ================= */
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("load "+src));document.head.appendChild(s);});}
+async function ensureModel(){
+  if(model) return model;
+  setCam("Loading vision model… one moment.");
+  if(!window.tf) await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js");
+  if(!window.cocoSsd) await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js");
+  model = await cocoSsd.load({base:"lite_mobilenet_v2"});
+  return model;
+}
+const KNOWN_H={person:1.7,bicycle:1.1,car:1.5,motorcycle:1.2,bus:3.0,truck:2.5,dog:0.6,cat:0.35,bench:0.9,chair:0.9,pottedplant:0.5,suitcase:0.7,backpack:0.5,handbag:0.4};
+const FOV_DEG = 62;
+function estDistance(cls,bhPx,vh){
+  const real=KNOWN_H[cls]; if(!real||!bhPx) return null;
+  const fPx = vh/(2*Math.tan(FOV_DEG*Math.PI/360)); // use vertical fov approx
+  return (real*fPx)/bhPx;
+}
+function sideOf(cx,w){const r=(cx-w/2)/(w/2);return r<-0.35?"on your left":r>0.35?"on your right":"ahead";}
+function setCam(t){$("camStatus").textContent=t;}
+async function startCamera(){
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:960}},audio:false});
+    $("video").srcObject = stream; await $("video").play();
+    await ensureModel();
+    setCam("Detection running. Hold the phone at chest height, camera facing forward.");
+    speak("Detection running. I'll warn you about obstacles.");
+    loop();
+  }catch(e){
+    setCam("Camera or model unavailable. Check camera permission and connection.");
+    speak("I couldn't start the camera. Please check camera permission.");
+  }
+}
+function stopCamera(){
+  clearTimeout(camTimer);
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  $("video").srcObject=null;
+  const c=$("overlay");c.getContext("2d").clearRect(0,0,c.width,c.height);
+}
+function loop(){
+  const v=$("video"); if(!stream||v.readyState<2){ if(stream) camTimer=setTimeout(loop,400); return; }
+  const c=$("overlay"),ctx=c.getContext("2d");
+  c.width=v.videoWidth;c.height=v.videoHeight;
+  model.detect(v).then(preds=>{
+    ctx.clearRect(0,0,c.width,c.height);
+    const sens={near:{d:1.5,c:3.0},standard:{d:2.0,c:4.5},far:{d:3.0,c:6.0}}[S.sensitivity];
+    let danger=false;
+    const seen=[];
+    for(const p of preds){
+      const [x,y,w,h]=p.bbox, cx=x+w/2;
+      const dist=estDistance(p.class,h,v.videoHeight);
+      const side=sideOf(cx,v.videoWidth);
+      const inPath=Math.abs(cx-v.videoWidth/2)<v.videoWidth*0.25;
+      if(dist){
+        const key=p.class+side, now=Date.now();
+        let sev="info";
+        if(dist<sens.d||(dist<sens.c&&inPath)) sev="danger";
+        else if(dist<sens.c&&inPath) sev="caution";
+        else if(dist<sens.c) sev="caution";
+        seen.push({cls:p.class,dist,side,sev});
+        // draw
+        ctx.lineWidth=4; ctx.setLineDash(sev==="danger"?[]:[sev==="caution"?[10,8]:[4,6]]);
+        ctx.strokeStyle=sev==="danger"?"#FF4D4F":sev==="caution"?"#FFB020":"#7AB8FF";
+        ctx.strokeRect(x,y,w,h);
+        ctx.setLineDash([]);
+        ctx.fillStyle="rgba(11,15,20,.85)";ctx.fillRect(x,Math.max(0,y-30),Math.max(70,p.class.length*11+40),28);
+        ctx.fillStyle="#fff";ctx.font="bold 18px sans-serif";
+        ctx.fillText(p.class+" "+dist.toFixed(1)+"m",x+6,Math.max(0,y-30)+21);
+        // alerts
+        const last=lastAlert[key]||0;
+        if(sev==="danger"&&(now-last>3000)){
+          lastAlert[key]=now; danger=true;
+          speak("Stop! "+p.class+" "+side+", "+distWord(dist)+".", {priority:true});
+          buzz([120,80,120,80,120]);
+        }else if(sev==="caution"&&S.verbosity!=="minimal"&&(now-last>8000)){
+          lastAlert[key]=now;
+          speak("Caution: "+p.class+" "+side+", "+distWord(dist)+".");
+          buzz(80);
+        }
+      }
+    }
+    if(danger) $("alerts").textContent="DANGER";
+    window.__lastSeen=seen;
+    if(stream) camTimer=setTimeout(loop, 380);
+  }).catch(()=>{ if(stream) camTimer=setTimeout(loop,600); });
+}
+function describeAround(){
+  if(!stream){ show("scr-camera"); startCamera(); setTimeout(describeAround,6000); return; }
+  const seen=(window.__lastSeen||[]).filter(s=>s.dist).sort((a,b)=>a.dist-b.dist);
+  if(!seen.length){ speak("I don't see any obstacles nearby."); return; }
+  const top=seen.slice(0,3).map(s=>s.cls.replace("pottedplant","plant")+" "+s.side+", "+distWord(s.dist));
+  speak("Around you: "+top.join(". ")+".");
+}
+
+/* ================= OCR (Tesseract.js, lazy) ================= */
+async function readSign(){
+  if(!stream){ show("scr-camera"); await startCamera(); }
+  if(ocrBusy) return;
+  ocrBusy=true; speak("Reading… hold the sign steady.");
+  try{
+    if(!window.Tesseract) await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js");
+    const v=$("video"); if(v.readyState<2) throw 0;
+    const cv=document.createElement("canvas");const sc=Math.min(1,1280/v.videoWidth);
+    cv.width=v.videoWidth*sc;cv.height=v.videoHeight*sc;
+    cv.getContext("2d").drawImage(v,0,0,cv.width,cv.height);
+    const {data}=await Tesseract.recognize(cv,"eng");
+    const lines=(data.lines||[]).filter(l=>l.confidence>55&&l.text.trim().length>2)
+      .sort((a,b)=>b.text.trim().length-a.text.trim().length).slice(0,3)
+      .map(l=>l.text.trim()).filter(Boolean);
+    if(lines.length){ speak("It says: "+lines.join(". ")); setCam("Read: "+lines.join(" / ")); }
+    else speak("I couldn't read any text here. Try holding the camera steady and closer.");
+  }catch(e){ speak("Reading failed. Try again."); }
+  ocrBusy=false;
+}
+
+/* ================= SOS ================= */
+function sosFlow(){
+  show("scr-sos");
+  if(!S.contact){ speak("No emergency contact set. Please add a phone number in Settings."); return; }
+  buzz([200,100,200,100,200,700]);
+  speak("SOS ready. Press the big red button to send your location to "+S.contact+".");
+}
+function sendSOS(){
+  if(!pos){ speak("No location available yet. Wait for the GPS icon, then try again."); return; }
+  const gmaps="https://maps.google.com/?q="+pos.lat+","+pos.lng;
+  const body=encodeURIComponent("EMERGENCY — I need help. My location: "+gmaps+" (accuracy ±"+Math.round(pos.accuracy)+" m). Sent via GuideLens.");
+  buzz([200,100,200,100,200,700,200,100,200]);
+  speak("Sending SOS with your location.", {priority:true});
+  window.open("sms:"+S.contact.replace(/[^+\d]/g,"")+"?&body="+body,"_self");
+}
+
+/* ================= VOICE COMMANDS ================= */
+const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null, recActive=false;
+function startRec(){
+  if(!SR){ speak("Voice input is not supported in this browser. Use the big buttons, or type commands on the Navigate screen."); return; }
+  if(recActive) return;
+  try{
+    rec=new SR(); rec.lang="en-US"; rec.interimResults=false; rec.maxAlternatives=1;
+    rec.onresult=ev=>{ const t=ev.results[0][0].transcript; handleCommand(t); };
+    rec.onerror=()=>{ recActive=false; };
+    rec.onend=()=>{ recActive=false; };
+    rec.start(); recActive=true; buzz(40);
+  }catch(e){}
+}
+function stopRec(){ if(rec&&recActive){ try{rec.stop();}catch(e){} recActive=false; } }
+function handleCommand(raw){
+  const t=raw.toLowerCase().replace(/[.?!]/g,"").trim();
+  $("live").textContent="Heard: "+raw;
+  let m;
+  if((m=t.match(/(?:navigate|take me|go|walk)(?: to)? (.+)/))) return navigateTo(m[1].trim());
+  if(t.includes("where am i")||t.includes("my location")) return whereAmI();
+  if(t.includes("read")) return readSign();
+  if(t.includes("around")||t.includes("what do you see")||t.includes("surroundings")) return describeAround();
+  if(t.includes("stop navigation")||t==="stop") return stopNavigation();
+  if(t.includes("repeat")) return speak(lastSpoken||"Nothing to repeat.");
+  if(t.includes("sos")||t.includes("emergency")||t.includes("help me")) return sosFlow();
+  if(t.includes("setting")) return show("scr-settings");
+  if(t.includes("start detection")||t.includes("start camera")){ show("scr-camera"); return startCamera(); }
+  speak("Sorry, I didn't understand. Try 'navigate to the library', 'where am I', 'read this', or 'what's around me'.");
+}
+
+/* ================= WIRING ================= */
+$("btnTalk").addEventListener("pointerdown",e=>{e.preventDefault();startRec();});
+$("btnTalk").addEventListener("pointerup",stopRec);
+$("btnTalk").addEventListener("pointercancel",stopRec);
+document.addEventListener("keydown",e=>{ if(e.code==="Space"&&document.activeElement.tagName!=="INPUT"){e.preventDefault(); if(!e.repeat) startRec();} });
+document.addEventListener("keyup",e=>{ if(e.code==="Space") stopRec(); });
+
+$("btnNavigate").onclick=()=>{show("scr-nav"); $("navDestInput").focus();};
+$("navGo").onclick=()=>{ const q=$("navDestInput").value.trim(); if(q) navigateTo(q); else speak("Please type or say a destination first."); };
+$("navStop").onclick=()=>{stopNavigation();};
+$("navBack").onclick=()=>{stopNavigation(true);show("scr-home");};
+$("btnDetect").onclick=()=>{show("scr-camera");startCamera();};
+$("btnAround").onclick=()=>describeAround();
+$("camStop").onclick=()=>{stopCamera();show("scr-home");speak("Detection stopped.");};
+$("btnWhereAmI").onclick=whereAmI;
+$("btnRead").onclick=readSign;
+$("btnSOS").onclick=sosFlow;
+$("sosSend").onclick=sendSOS;
+$("sosBack").onclick=()=>show("scr-home");
+$("btnSettings").onclick=()=>show("scr-settings");
+
+/* settings */
+function loadSettingsUI(){
+  $("chkAudio").checked=S.audio; $("chkHaptics").checked=S.haptics; $("chkStepFree").checked=S.stepFree;
+  document.querySelectorAll("input[name=verb]").forEach(r=>r.checked=r.value===S.verbosity);
+  document.querySelectorAll("input[name=sens]").forEach(r=>r.checked=r.value===S.sensitivity);
+  $("setRate").value=S.rate; $("rateVal").textContent=(+S.rate).toFixed(1)+"×";
+  $("setContact").value=S.contact;
+}
+$("setRate").oninput=()=>{$("rateVal").textContent=(+$("setRate").value).toFixed(1)+"×";};
+$("btnSaveSettings").onclick=()=>{
+  S.audio=$("chkAudio").checked; S.haptics=$("chkHaptics").checked; S.stepFree=$("chkStepFree").checked;
+  S.verbosity=document.querySelector("input[name=verb]:checked").value;
+  S.sensitivity=document.querySelector("input[name=sens]:checked").value;
+  S.rate=+$("setRate").value; S.contact=$("setContact").value.trim();
+  localStorage.setItem("gl_settings",JSON.stringify(S));
+  speak("Settings saved."); show("scr-home");
+};
+$("btnTestVoice").onclick=()=>speak("This is how GuideLens sounds. You can change the speed in settings.",{priority:true});
+$("setBack").onclick=()=>show("scr-home");
+
+/* battery */
+if(navigator.getBattery) navigator.getBattery().then(b=>{
+  const up=()=>{$("batt").textContent="<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:8px"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"/><line x1="23" y1="13" x2="23" y2="11"/><rect x="4" y="9" width="8" height="6" rx="1" ry="1" fill="currentColor" stroke="none"/></svg> "+Math.round(b.level*100)+"%";};
+  up(); b.onlevelchange=up;
+});
+
+/* first run */
+if(!localStorage.getItem("gl_agreed")){
+  setTimeout(()=>{ $("disclaimer").showModal(); speak("Welcome to GuideLens. Please listen to the safety information on screen."); },600);
+}
+$("agreeBtn").onclick=()=>{localStorage.setItem("gl_agreed","1");$("disclaimer").close();speak("Great. Hold the right side button and say, navigate to, followed by a place.");};
+
+/* service worker + geo */
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+startGeo();
+loadSettingsUI();
+if(!("mediaDevices" in navigator)) speak("Note: camera features need a secure H T T P S connection and a modern browser.");
+</script>
+</body>
+</html>
