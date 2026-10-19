@@ -1,0 +1,48 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #102033;
+  color: white;
+  padding: 24px;
+  line-height: 1.6;
+}
+
+main {
+  max-width: 600px;
+  margin: 40px auto;
+}
+
+h1 {
+  font-size: 36px;
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  margin: 14px 0;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 4px solid #ffd166;
+  outline-offset: 4px;
+}
+
+#status {
+  font-size: 20px;
+  margin-top: 24px;
+}
+video {
+  display: block;
+  margin-top: 16px;
+  background: #000;
+  min-height: 200px;
+  object-fit: cover;
+}
+
+section {
+  margin-top: 32px;
+}
