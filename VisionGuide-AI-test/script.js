@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let cocoModel = null;
     let currentLanguage = 'en'; // 'en' or 'ur'
     let currentAudio = null;
+    let lastToggleTime = 0;
 
     // Display Text Map for Urdu UI Transcripts
     const urduDisplayMap = {
@@ -195,11 +196,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Parse strictly for the 4 requested phrases
     function processParsedCommand(text) {
         const cleanText = text.toLowerCase().trim();
+        const now = Date.now();
 
-        if (cleanText.includes('switch to english') || cleanText.includes('english pr jaien') || cleanText.includes('english par jaien') || cleanText.includes('english par jain') || cleanText.includes('انگلش پر جائیں')) {
+        if (cleanText.includes('english')) {
             if (currentLanguage !== 'en') setLanguage('en');
-        } else if (cleanText.includes('switch to urdu') || cleanText.includes('urdu par jaien') || cleanText.includes('urdu pr jaien') || cleanText.includes('urdu par jain') || cleanText.includes('اردو پر جائیں')) {
+        } else if (cleanText.includes('urdu')) {
             if (currentLanguage !== 'ur') setLanguage('ur');
+        } else if (cleanText.includes('switch') || cleanText.includes('language')) {
+            if (now - lastToggleTime > 2000) {
+                setLanguage(currentLanguage === 'en' ? 'ur' : 'en');
+                lastToggleTime = now;
+            }
         }
     }
 
