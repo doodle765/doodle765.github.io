@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionGuide AI — Visual Perception Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Local Offline TensorFlow.js & COCO-SSD -->
+    <script src="lib/tf.min.js"></script>
+    <script src="lib/coco-ssd.min.js"></script>
+</head>
+<body>
+    <div class="glass-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <main class="app-container">
+        <!-- Header -->
+        <header class="app-header glass-card">
+            <div class="brand-identity">
+                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <h1 class="brand-title">VisionGuide <span>AI</span></h1>
+            </div>
+            
+            <div class="status-indicator-badge">
+                <span class="pulse-dot" id="system-status-dot"></span>
+                <span class="status-text" id="status-text">Loading Local Model...</span>
+            </div>
+        </header>
+
+        <!-- Viewfinder Section -->
+        <section class="viewport-section">
+            <div class="viewfinder-container glass-card">
+                <video id="video-feed" autoplay playsinline muted></video>
+                <canvas id="detection-canvas"></canvas>
+
+                <div class="overlay-controls">
+                    <button id="toggle-camera-btn" class="glass-btn icon-btn" title="Toggle Camera">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </button>
+                    <button id="switch-camera-btn" class="glass-btn icon-btn" title="Switch Camera">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="detection-badge" id="detection-summary">
+                    <span id="detected-object-label">Initializing Offline AI...</span>
+                    <span id="detection-confidence-tag" class="confidence-tag">0%</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Controls -->
+        <section class="controls-section glass-card">
+            <div class="status-alert">
+                <span class="mic-listening-dot"></span> Microphone active. Say "Switch to Urdu" or "Switch to English".
+            </div>
+
+            <div class="speech-controls-group">
+                <!-- Language Toggle -->
+                <button id="lang-toggle-btn" class="glass-btn primary-btn full-width-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <span id="lang-btn-label">Language: English</span>
+                </button>
+
+                <!-- Audio Output Mute -->
+                <button id="speech-toggle-btn" class="glass-btn secondary-btn full-width-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    <span id="speech-btn-label">Mute Audio</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- AI Perception Output Panel -->
+        <section class="feedback-section glass-card">
+            <div class="feedback-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <h2>AI Description Output</h2>
+            </div>
+            <div class="feedback-body" id="transcript-output">
+                Loading offline detection model. Please grant camera access.
+            </div>
+        </section>
+    </main>
+
+    <script src="lib/tf.min.js"></script>
+    <script src="lib/coco-ssd.min.js"></script>
+    <script src="lib/vosk.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
