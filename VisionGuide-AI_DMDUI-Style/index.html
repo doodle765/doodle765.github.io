@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionGuide AI — Visual Perception Assistant</title>
+    <meta name="description" content="VisionGuide AI — an offline visual perception assistant. Point the camera at anything; it speaks what it sees, in English or Urdu.">
+    <meta name="theme-color" id="meta-theme-color" content="#090b0f">
+    <script>
+        /* Set theme before first paint: stored choice wins, otherwise follow the OS. */
+        (function () {
+            var stored = null;
+            try { stored = localStorage.getItem("vg-theme"); } catch (e) {}
+            var light = stored ? stored === "light"
+                               : window.matchMedia("(prefers-color-scheme: light)").matches;
+            document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+        })();
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a class="skip-link" href="#voice-panel">Skip to spoken output</a>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="brand">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </span>
+            <div class="brand-text">
+                <h1 class="brand-name">VisionGuide AI</h1>
+                <p class="brand-sub">Offline visual perception</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <p class="status-chip" role="status">
+                <span class="status-dot" id="system-status-dot"></span>
+                <span id="status-text">Loading Local Model...</span>
+            </p>
+
+            <button id="theme-toggle" class="theme-toggle" type="button" role="switch" aria-checked="true" aria-label="Dark mode">
+                <span class="theme-toggle-track">
+                    <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+                    </svg>
+                    <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+                    </svg>
+                    <span class="theme-toggle-thumb" aria-hidden="true"></span>
+                </span>
+            </button>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <!-- Viewfinder -->
+        <section class="panel view-panel" aria-labelledby="view-heading">
+            <div class="panel-head">
+                <h2 id="view-heading" class="panel-title">Live view</h2>
+                <span class="panel-tag" aria-hidden="true">On-device model</span>
+            </div>
+            <div class="viewfinder">
+                <video id="video-feed" autoplay playsinline muted aria-label="Camera preview"></video>
+                <canvas id="detection-canvas" aria-hidden="true"></canvas>
+
+                <div class="view-controls">
+                    <button id="toggle-camera-btn" class="icon-button" title="Turn camera on or off (C)" aria-label="Turn camera on or off">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </button>
+                    <button id="switch-camera-btn" class="icon-button" title="Switch camera — front or back" aria-label="Switch between front and back camera">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <p class="detection-badge">
+                    <span id="detected-object-label">Initializing Offline AI...</span>
+                    <span id="detection-confidence-tag" class="confidence-tag">0%</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- Right rail: spoken output + controls -->
+        <div class="rail">
+            <section class="panel voice-panel" id="voice-panel" aria-labelledby="voice-heading">
+                <div class="panel-head">
+                    <h2 id="voice-heading" class="panel-title">Spoken output</h2>
+                </div>
+                <p class="transcript" id="transcript-output" aria-live="polite">
+                    Loading offline detection model. Please grant camera access.
+                </p>
+                <p class="listening-line">
+                    <span class="mic-dot" aria-hidden="true"></span>
+                    <span>Try Saying "Laguage", "Urdu" or "English".</span>
+                </p>
+            </section>
+
+            <section class="panel controls-panel" aria-labelledby="controls-heading">
+                <div class="panel-head">
+                    <h2 id="controls-heading" class="panel-title">Controls</h2>
+                    <span class="panel-tag" aria-hidden="true">Keys: C · L · M</span>
+                </div>
+                <div class="control-buttons">
+                    <button id="lang-toggle-btn" class="button button-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        <span id="lang-btn-label">Language: English</span>
+                    </button>
+
+                    <button id="speech-toggle-btn" class="button button-secondary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                        <span id="speech-btn-label">Mute Audio</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="lib/tf.min.js"></script>
+    <script src="lib/coco-ssd.min.js"></script>
+    <script src="lib/vosk.js"></script>
+    <script src="script.js"></script>
+    <script src="ui.js"></script>
+    <script src="theme.js"></script>
+</body>
+</html>

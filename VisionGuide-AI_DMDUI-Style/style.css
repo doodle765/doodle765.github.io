@@ -1,0 +1,621 @@
+/* ==========================================================================
+   VisionGuide AI — UI stylesheet (redesign)
+   Direction: "the instrument" — a dark-mode developer/SaaS control surface
+   for an on-device AI vision tool. One near-black ground, flat tone-step
+   surfaces, a single cyan signal accent, square corners throughout.
+   Light theme is the same system with light-material values.
+   script.js depends on the element IDs in index.html — do not rename them.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- Tokens */
+
+:root {
+    color-scheme: dark;
+
+    /* Dark material */
+    --ground: #090b0f;
+    --surface: #10141c;
+    --surface-2: #171d29;
+    --surface-3: #202839;
+    --ink: #e9eef7;
+    --ink-dim: #98a3b8;
+    --accent: #22d3ee;
+    --accent-ink: #03151b;
+    --on-dark: #06121a;
+
+    --status-ok: #34d399;
+    --status-warn: #fbbf24;
+    --status-err: #f87171;
+    --status-off: #64748b;
+
+    --edge: #232c3d;
+    --radius: 0px;
+    --outer: clamp(16px, 4vw, 40px);
+    --maxw: 1180px;
+    --gap: clamp(18px, 3vw, 32px);
+
+    --font-main: "Segoe UI", system-ui, -apple-system, "Helvetica Neue",
+        Arial, sans-serif;
+
+    --transcript-size: clamp(20px, 2vw, 26px);
+}
+
+[data-theme="light"] {
+    color-scheme: light;
+
+    --ground: #eef1f6;
+    --surface: #ffffff;
+    --surface-2: #e6eaf2;
+    --surface-3: #d8dfec;
+    --ink: #10151f;
+    --ink-dim: #566274;
+    --accent: #0891b2;
+    --accent-ink: #ffffff;
+    --on-dark: #f4f7fc;
+
+    --status-ok: #0f8a52;
+    --status-warn: #b07d0e;
+    --status-err: #d0342c;
+    --status-off: #7c8698;
+
+    --edge: #d3dae6;
+}
+
+/* ------------------------------------------------------------------ Base */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-main);
+    font-size: 17px;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+::selection {
+    background: var(--accent);
+    color: var(--accent-ink);
+}
+
+:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.skip-link {
+    position: absolute;
+    top: -64px;
+    inset-inline-start: var(--outer);
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 12px 18px;
+    font-weight: 700;
+    z-index: 100;
+    transition: top 0.15s ease;
+}
+.skip-link:focus-visible {
+    top: 12px;
+}
+
+/* ---------------------------------------------------------------- Header */
+
+.app-header {
+    max-width: var(--maxw);
+    width: 100%;
+    margin-inline: auto;
+    padding: var(--outer) var(--outer) 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.brand-mark {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--accent-ink);
+}
+
+.brand-mark svg {
+    width: 26px;
+    height: 26px;
+}
+
+.brand-text {
+    min-width: 0;
+}
+
+.brand-name {
+    font-size: clamp(21px, 2.2vw, 26px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+.brand-sub {
+    font-size: 14px;
+    color: var(--ink-dim);
+    margin-top: 2px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* Status chip */
+.status-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--edge);
+    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--status-off);
+    flex-shrink: 0;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ------------------------------------------------------- Theme toggle */
+
+.theme-toggle {
+    border: 1px solid var(--edge);
+    background: var(--surface);
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--surface-2);
+}
+
+.theme-toggle-track {
+    position: relative;
+    display: block;
+    width: 64px;
+    height: 30px;
+}
+
+.theme-icon {
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    color: var(--ink-dim);
+    transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.theme-icon-sun {
+    inset-inline-start: 9px;
+}
+
+.theme-icon-moon {
+    inset-inline-end: 9px;
+}
+
+.theme-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    inset-inline-start: 2px;
+    width: 26px;
+    height: 26px;
+    background: var(--accent);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* dark = thumb right covering the moon, sun lit; light = the reverse */
+[data-theme="dark"] .theme-toggle-thumb {
+    transform: translateX(34px);
+}
+[data-theme="dark"] .theme-icon-sun {
+    color: var(--accent);
+}
+[data-theme="light"] .theme-icon-moon {
+    color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle-thumb {
+        transition: none;
+    }
+}
+
+/* ------------------------------------------------------------------ Main */
+
+.app-main {
+    max-width: var(--maxw);
+    width: 100%;
+    margin-inline: auto;
+    padding: var(--gap) var(--outer) var(--gap);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: var(--gap);
+    flex: 1;
+}
+
+.rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    min-width: 0;
+}
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--edge);
+    padding: clamp(18px, 2.4vw, 26px);
+    transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+
+.panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.panel-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+}
+
+.panel-title::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    margin-inline-end: 10px;
+    vertical-align: middle;
+}
+
+.panel-tag {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-dim);
+    white-space: nowrap;
+}
+
+/* -------------------------------------------------------------- Viewfinder */
+
+.viewfinder {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #05070a;
+    border: 1px solid var(--edge);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-theme="light"] .viewfinder {
+    border-color: #c3ccdb;
+}
+
+#video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#detection-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.view-controls {
+    position: absolute;
+    top: 14px;
+    inset-inline-end: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+}
+
+.icon-button {
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--edge);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.icon-button svg {
+    width: 24px;
+    height: 24px;
+}
+
+.icon-button:hover {
+    background: var(--surface-3);
+}
+
+.icon-button:active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+}
+
+.detection-badge {
+    position: absolute;
+    bottom: 14px;
+    inset-inline: 14px;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--edge);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    font-size: clamp(16px, 1.6vw, 19px);
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.confidence-tag {
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 4px 14px;
+    font-weight: 800;
+    font-size: 0.85em;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------ Voice panel */
+
+.transcript {
+    font-size: var(--transcript-size);
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--ink);
+    min-height: 3.2em;
+    overflow-wrap: break-word;
+}
+
+.listening-line {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--edge);
+    font-size: 15px;
+    color: var(--ink-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.4;
+}
+
+.mic-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    animation: mic-pulse 1.6s ease-out infinite;
+}
+
+@keyframes mic-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.45); }
+    70% { box-shadow: 0 0 0 9px rgba(34, 211, 238, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
+}
+
+/* ---------------------------------------------------------- Controls panel */
+
+.control-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 17px 20px;
+    font-family: var(--font-main);
+    font-size: 17px;
+    font-weight: 700;
+    border: 1px solid var(--edge);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease,
+        border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.button svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.button-primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+}
+
+.button-primary:hover {
+    background: var(--surface-3);
+    color: var(--ink);
+    border-color: var(--edge);
+}
+
+.button-secondary {
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+.button-secondary:hover {
+    background: var(--surface-3);
+}
+
+/* ------------------------------------------------------------- Responsive */
+
+@media (max-width: 960px) {
+    .app-main {
+        grid-template-columns: 1fr;
+    }
+
+    .viewfinder {
+        aspect-ratio: 16 / 10;
+    }
+}
+
+@media (max-width: 560px) {
+    body {
+        font-size: 16px;
+    }
+
+    .app-header {
+        padding-top: 16px;
+        gap: 14px;
+    }
+
+    .brand-mark {
+        width: 40px;
+        height: 40px;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .status-chip {
+        font-size: 14px;
+        padding: 9px 12px;
+    }
+
+    .theme-toggle-track {
+        width: 58px;
+        height: 28px;
+    }
+
+    .theme-toggle-thumb {
+        width: 22px;
+        height: 22px;
+    }
+
+    [data-theme="dark"] .theme-toggle-thumb {
+        transform: translateX(30px);
+    }
+
+    .panel {
+        padding: 16px;
+    }
+
+    .panel-tag {
+        display: none;
+    }
+
+    .view-controls {
+        top: 10px;
+        inset-inline-end: 10px;
+        flex-direction: row;
+    }
+
+    .icon-button {
+        width: 46px;
+        height: 46px;
+    }
+
+    .detection-badge {
+        inset-inline: 10px;
+        bottom: 10px;
+        padding: 10px 12px;
+    }
+
+    .control-buttons {
+        flex-direction: row;
+    }
+
+    .button {
+        flex: 1;
+        padding: 15px 12px;
+        font-size: 15px;
+    }
+}
+
+/* ------------------------------------------------------- Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .mic-dot {
+        animation: none;
+    }
+
+    body,
+    .panel,
+    .status-chip,
+    .theme-toggle,
+    .theme-toggle-thumb,
+    .theme-icon,
+    .icon-button,
+    .button,
+    .skip-link {
+        transition: none;
+    }
+}

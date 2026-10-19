@@ -1,0 +1,725 @@
+/* ==========================================================================
+   VisionGuide AI — UI stylesheet (Material Design 3 inspired)
+   Elevation + rounded "cards", pill buttons, segmented theme control,
+   dark/light themes via [data-theme] on <html> (see theme.js).
+   script.js depends on the element IDs in index.html — do not rename them.
+   ========================================================================== */
+
+/* Optional low-vision typeface. Works out of the box without it (falls back
+   to the system stack). To enable: download the free "Atkinson Hyperlegible"
+   fonts (Braille Institute, free for commercial use) and place
+   AtkinsonHyperlegible-Regular.woff2 and -Bold.woff2 in a ./fonts folder. */
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    src: url("fonts/AtkinsonHyperlegible-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    src: url("fonts/AtkinsonHyperlegible-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ------------------------------------------------------------------ Tokens */
+
+:root {
+    color-scheme: light;
+
+    /* Brand */
+    --primary: #c8102e;
+    --primary-hover: #a50d26;
+    --on-primary: #ffffff;
+
+    /* Light theme — Material 3 light, cool neutral */
+    --bg: #f4f6f8;
+    --surface: #ffffff;
+    --surface-2: #e9edf1;
+    --surface-3: #dfe4ea;
+    --ink: #191c1f;
+    --text-primary: var(--ink);
+    --text-secondary: #454a51;
+    --outline: #c3c9d1;
+    --status-ok: #1e8e4e;
+    --status-warn: #b57a0a;
+    --status-err: #d0342c;
+    --status-off: #8a919b;
+
+    /* Shape & elevation */
+    --radius-lg: 20px;
+    --radius-md: 16px;
+    --radius-pill: 999px;
+    --shadow-1: 0 1px 2px rgba(15, 23, 32, 0.08), 0 1px 6px rgba(15, 23, 32, 0.06);
+    --shadow-2: 0 2px 6px rgba(15, 23, 32, 0.12), 0 4px 16px rgba(15, 23, 32, 0.10);
+    --shadow-3: 0 6px 16px rgba(15, 23, 32, 0.16), 0 12px 32px rgba(15, 23, 32, 0.14);
+
+    --outer: clamp(14px, 3.5vw, 32px);
+    --maxw: 1180px;
+    --gap: clamp(16px, 2.5vw, 28px);
+
+    --font-main: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system,
+        "Helvetica Neue", Roboto, Arial, sans-serif;
+
+    --transcript-size: clamp(20px, 2vw, 26px);
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --primary: #ff6b5e;
+    --primary-hover: #ff8a80;
+    --on-primary: #3b0603;
+
+    --bg: #131518;
+    --surface: #1b1e22;
+    --surface-2: #24282d;
+    --surface-3: #2e333a;
+    --ink: #e3e3e7;
+    --text-primary: var(--ink);
+    --text-secondary: #a8adb5;
+    --outline: #3f444b;
+    --status-ok: #4cc27e;
+    --status-warn: #e2b95c;
+    --status-err: #ff7b72;
+    --status-off: #7d838d;
+
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 6px rgba(0, 0, 0, 0.4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.55), 0 4px 16px rgba(0, 0, 0, 0.45);
+    --shadow-3: 0 6px 16px rgba(0, 0, 0, 0.6), 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* ------------------------------------------------------------------ Base */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 17px;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+::selection {
+    background: var(--primary);
+    color: var(--on-primary);
+}
+
+/* Keyboard focus — loud and unmissable */
+:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+/* Skip link for keyboard / screen-reader users */
+.skip-link {
+    position: absolute;
+    top: -64px;
+    inset-inline-start: var(--outer);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 18px;
+    font-weight: 700;
+    border-radius: var(--radius-pill);
+    z-index: 100;
+    transition: top 0.15s ease;
+    box-shadow: var(--shadow-2);
+}
+.skip-link:focus-visible {
+    top: 12px;
+}
+
+/* ---------------------------------------------------------------- Header */
+
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+    border-bottom: 1px solid var(--outline);
+    box-shadow: var(--shadow-1);
+}
+
+.app-header {
+    width: 100%;
+}
+
+.app-header > * {
+    max-width: var(--maxw);
+}
+
+/* Inner row shares the max width with main/footer */
+.app-header {
+    display: flex;
+}
+
+.app-header::before {
+    content: none;
+}
+
+.app-header {
+    padding-inline: max(var(--outer), calc((100% - var(--maxw)) / 2));
+}
+
+.app-header {
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.brand-mark {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: var(--on-primary);
+    border-radius: 14px;
+    box-shadow: var(--shadow-1);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.brand-mark svg {
+    width: 26px;
+    height: 26px;
+}
+
+.brand-text {
+    min-width: 0;
+}
+
+.brand-name {
+    font-size: clamp(20px, 2.2vw, 24px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+}
+
+.brand-tagline {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.2;
+    margin-top: 1px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Status chip — pill, tonal surface */
+.status-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    padding: 9px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 14.5px;
+    font-weight: 600;
+    box-shadow: var(--shadow-1);
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--status-off);
+    flex-shrink: 0;
+}
+
+/* Segmented theme control — Material 3 segmented button */
+.theme-seg {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--surface-2);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-pill);
+    padding: 3px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.seg {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 15px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.seg svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+}
+
+.seg:hover {
+    color: var(--text-primary);
+}
+
+.seg.is-active {
+    background: var(--primary);
+    color: var(--on-primary);
+    box-shadow: var(--shadow-1);
+}
+
+/* ------------------------------------------------------------------ Main */
+
+.app-main {
+    max-width: var(--maxw);
+    width: 100%;
+    margin-inline: auto;
+    padding: var(--gap) var(--outer) var(--gap);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: var(--gap);
+    flex: 1;
+    align-items: start;
+}
+
+.rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    min-width: 0;
+}
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-lg);
+    padding: clamp(18px, 2.2vw, 24px);
+    box-shadow: var(--shadow-1);
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text-primary);
+    letter-spacing: 0.005em;
+}
+
+.panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* -------------------------------------------------------------- Viewfinder */
+
+.viewfinder {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #000;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#detection-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Floating camera actions */
+.view-controls {
+    position: absolute;
+    top: 14px;
+    inset-inline-end: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+}
+
+.icon-button {
+    position: relative;
+    overflow: hidden;
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--outline);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-2);
+    transition: background-color 0.15s ease, color 0.15s ease,
+        box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.icon-button svg {
+    width: 23px;
+    height: 23px;
+}
+
+.icon-button:hover {
+    background: var(--surface-2);
+    box-shadow: var(--shadow-3);
+}
+
+.icon-button:active {
+    transform: scale(0.94);
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--on-primary);
+}
+
+/* Detection label bar — dark scrim over the video, works in both themes */
+.detection-badge {
+    position: absolute;
+    bottom: 14px;
+    inset-inline: 14px;
+    background: rgba(12, 14, 17, 0.82);
+    color: #f4f5f7;
+    padding: 12px 18px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    font-size: clamp(16px, 1.6vw, 19px);
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.confidence-tag {
+    background: var(--primary);
+    color: var(--on-primary);
+    padding: 4px 14px;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    font-size: 0.85em;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------ Voice panel */
+
+.transcript {
+    font-size: var(--transcript-size);
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--text-primary);
+    min-height: 3.2em;
+    overflow-wrap: break-word;
+}
+
+.listening-line {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--outline);
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.4;
+}
+
+.mic-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+    animation: mic-pulse 1.6s ease-out infinite;
+}
+
+@keyframes mic-pulse {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 45%, transparent); }
+    70% { box-shadow: 0 0 0 9px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* ---------------------------------------------------------- Controls panel */
+
+.control-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Pill buttons — Material 3 filled / tonal */
+.button {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 56px;
+    padding: 15px 20px;
+    font-family: var(--font-main);
+    font-size: 16.5px;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    box-shadow: var(--shadow-1);
+    transition: background-color 0.15s ease, color 0.15s ease,
+        box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.button svg {
+    width: 21px;
+    height: 21px;
+    flex-shrink: 0;
+}
+
+.button:active {
+    transform: scale(0.985);
+    box-shadow: none;
+}
+
+.button-primary {
+    background: var(--primary);
+    color: var(--on-primary);
+}
+
+.button-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: var(--shadow-2);
+}
+
+.button-secondary {
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+.button-secondary:hover {
+    background: var(--surface-3);
+}
+
+/* ---------------------------------------------------------------- Footer */
+
+.app-footer {
+    max-width: var(--maxw);
+    width: 100%;
+    margin-inline: auto;
+    padding: 20px var(--outer) 34px;
+    border-top: 1px solid var(--outline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 14.5px;
+    color: var(--text-secondary);
+}
+
+.footer-keys {
+    font-weight: 600;
+}
+
+kbd {
+    font-family: var(--font-main);
+    font-weight: 700;
+    font-size: 0.88em;
+    background: var(--surface-2);
+    border: 1px solid var(--outline);
+    border-radius: 8px;
+    padding: 2px 8px;
+    box-shadow: 0 1px 0 var(--outline);
+}
+
+/* ---------------------------------------------------------------- Ripple */
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.16;
+    transform: scale(0);
+    animation: ripple 0.55s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+/* ------------------------------------------------------------- Responsive */
+
+@media (max-width: 960px) {
+    .app-main {
+        grid-template-columns: 1fr;
+    }
+
+    .rail {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 640px) {
+    body {
+        font-size: 16px;
+    }
+
+    .app-header {
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .brand-tagline {
+        display: none;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .status-chip {
+        font-size: 13.5px;
+        padding: 8px 13px;
+    }
+
+    .seg {
+        padding: 8px 12px;
+        font-size: 13.5px;
+    }
+
+    .seg span {
+        display: none; /* icon-only segments on small screens */
+    }
+
+    .seg svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .panel {
+        padding: 16px;
+        border-radius: var(--radius-md);
+    }
+
+    .view-controls {
+        top: 10px;
+        inset-inline-end: 10px;
+        gap: 8px;
+    }
+
+    .icon-button {
+        width: 48px;
+        height: 48px;
+    }
+
+    .detection-badge {
+        bottom: 10px;
+        inset-inline: 10px;
+        padding: 10px 14px;
+    }
+
+    .rail {
+        grid-template-columns: 1fr;
+    }
+
+    .button {
+        min-height: 52px;
+    }
+
+    .app-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 380px) {
+    .status-chip span:last-child {
+        max-width: 34vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* ------------------------------------------------------- Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .mic-dot,
+    .ripple {
+        animation: none;
+    }
+
+    body,
+    .panel,
+    .brand-mark,
+    .button,
+    .icon-button,
+    .seg,
+    .skip-link {
+        transition: none;
+    }
+}
