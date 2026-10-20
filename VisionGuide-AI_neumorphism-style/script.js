@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (currentLanguage !== 'en') setLanguage('en');
         } else if (cleanText.includes('urdu')) {
             if (currentLanguage !== 'ur') setLanguage('ur');
-        } else if (cleanText.includes('language')) {
+        } else if (cleanText.includes('switch') || cleanText.includes('language')) {
             if (now - lastToggleTime > 2000) {
                 setLanguage(currentLanguage === 'en' ? 'ur' : 'en');
                 lastToggleTime = now;

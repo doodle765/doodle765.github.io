@@ -1,11 +1,8 @@
 /* ==========================================================================
-   VisionGuide AI — Neumorphism UI stylesheet
-   Concept: the soft-touch face of a physical assistive device. Recessed
-   status/display wells, raised tactile controls, one signal-red accent
-   (matches the detection-box overlay color remapped in ui.js).
-   Light & dark themes via [data-theme] on <html>; defaults to the
-   system preference (set inline in index.html before first paint).
-   Dark theme is a deep blue-charcoal for a cooler, more modern neu look.
+   VisionGuide AI — Flat Neumorphism UI
+   Soft-raised controls on one flat ground; inset wells for output.
+   Light/dark themes via [data-theme] on <html> (theme.js drives it;
+   default follows the system theme).
    script.js depends on the element IDs in index.html — do not rename them.
    ========================================================================== */
 
@@ -28,132 +25,70 @@
     font-display: swap;
 }
 
-/* ---------------------------------------------------------------- Tokens */
+/* ------------------------------------------------------------------ Tokens */
 
 :root {
-    /* Type & geometry */
-    --font-main: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system,
-        "Helvetica Neue", Arial, sans-serif;
-    --radius-lg: 26px;
-    --radius-md: 18px;
-    --radius-sm: 13px;
+    /* Neumorphic ground — the whole page is one flat colour */
+    --bg: #e4e9f1;
+    --ink: #2f3b52;
+    --ink-2: #63718c;
+    --accent: #4f7cff;
+    --accent-ink: #ffffff;
+
+    /* Status (script.js sets these on the dot directly too) */
+    --status-ok: #10b981;
+    --status-warn: #f59e0b;
+    --status-err: #ef4444;
+    --status-off: #98a5bb;
+
+    /* Neumorphic shadows */
+    --sh-dark: #c3ccda;
+    --sh-light: #ffffff;
+    --neu-raised:
+        6px 6px 14px var(--sh-dark),
+        -6px -6px 14px var(--sh-light);
+    --neu-raised-sm:
+        4px 4px 10px var(--sh-dark),
+        -4px -4px 10px var(--sh-light);
+    --neu-pressed:
+        inset 5px 5px 10px var(--sh-dark),
+        inset -5px -5px 10px var(--sh-light);
+    --neu-pressed-sm:
+        inset 3px 3px 7px var(--sh-dark),
+        inset -3px -3px 7px var(--sh-light);
+
+    /* Wells: slightly darker flat tone, read as "inside the surface" */
+    --well: #dde3ee;
+    --scrim: rgba(26, 32, 48, 0.86);
+
+    /* Component tokens */
+    --radius: 22px;
+    --radius-sm: 16px;
     --outer: clamp(16px, 4vw, 40px);
     --maxw: 1160px;
-    --gap: clamp(22px, 3vw, 40px);
+    --gap: clamp(20px, 3vw, 36px);
+
+    --font-main: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system,
+        "Helvetica Neue", Arial, sans-serif;
+
     --transcript-size: clamp(20px, 2vw, 26px);
-
-    /* Light theme (default) — cool porcelain */
-    color-scheme: light;
-    --bg: #e7ecf4;
-    --surface: #eef2f8;
-    --surface-hover: #f4f7fc;
-    --well: #e2e8f2;
-    --text-primary: #252d3c;
-    --text-secondary: #5b6675;
-    --accent: #c8102e;
-    --accent-hover: #a80d27;
-    --on-accent: #ffffff;
-    --status-ok: #157a43;
-    --status-warn: #a16207;
-    --status-err: #b91c1c;
-    --status-off: #8b95a3;
-    --viewfinder-bg: #10141b;
-    --badge-bg: rgba(23, 28, 38, 0.92);
-    --badge-text: #eef2f8;
-
-    /* Neumorphic shadow pair (dark below-right, light above-left) */
-    --shadow-dark: rgba(148, 162, 184, 0.55);
-    --shadow-dark-soft: rgba(148, 162, 184, 0.35);
-    --shadow-light: rgba(255, 255, 255, 0.95);
-    --accent-shadow: rgba(150, 13, 38, 0.38);
-    --accent-press: rgba(120, 8, 30, 0.45);
-    --accent-hi: rgba(255, 255, 255, 0.28);
-
-    /* Shadow recipes (same shape everywhere, so they cross-fade on theme change) */
-    --neu-raised:
-        10px 10px 20px var(--shadow-dark),
-        -10px -10px 20px var(--shadow-light);
-    --neu-raised-hover:
-        13px 13px 26px var(--shadow-dark),
-        -13px -13px 26px var(--shadow-light);
-    --neu-raised-sm:
-        5px 5px 10px var(--shadow-dark-soft),
-        -5px -5px 10px var(--shadow-light);
-    --neu-inset:
-        inset 6px 6px 12px var(--shadow-dark-soft),
-        inset -6px -6px 12px var(--shadow-light);
-    --neu-inset-sm:
-        inset 3px 3px 6px var(--shadow-dark-soft),
-        inset -3px -3px 6px var(--shadow-light);
-    --neu-pressed:
-        inset 5px 5px 10px var(--shadow-dark-soft),
-        inset -5px -5px 10px var(--shadow-light);
-    --neu-accent:
-        6px 6px 14px var(--accent-shadow),
-        -6px -6px 14px var(--shadow-light);
-    --neu-accent-pressed:
-        inset 4px 4px 10px var(--accent-press),
-        inset -4px -4px 10px var(--accent-hi);
 }
 
-/* Dark theme — deep blue-charcoal */
-:root[data-theme="dark"] {
-    color-scheme: dark;
-    --bg: #1b2436;
-    --surface: #232e45;
-    --surface-hover: #2a3752;
-    --well: #161e2f;
-    --text-primary: #e9eef8;
-    --text-secondary: #95a5c0;
-    --accent: #e5324f;
-    --accent-hover: #f2506c;
-    --on-accent: #ffffff;
-    --status-ok: #45d482;
-    --status-warn: #e0aa45;
-    --status-err: #f06a6a;
-    --status-off: #6d7d99;
-    --viewfinder-bg: #0a0f1a;
-    --badge-bg: rgba(12, 17, 28, 0.94);
-    --badge-text: #e9eef8;
+[data-theme="dark"] {
+    --bg: #1b2130;
+    --ink: #dde5f2;
+    --ink-2: #8b99b3;
+    --accent: #6f92ff;
+    --accent-ink: #10141f;
 
-    --shadow-dark: rgba(4, 8, 18, 0.55);
-    --shadow-dark-soft: rgba(4, 8, 18, 0.38);
-    --shadow-light: rgba(159, 183, 222, 0.09);
-    --accent-shadow: rgba(3, 6, 14, 0.6);
-    --accent-press: rgba(0, 0, 0, 0.7);
-    --accent-hi: rgba(255, 255, 255, 0.07);
+    --sh-dark: rgba(0, 0, 0, 0.55);
+    --sh-light: rgba(255, 255, 255, 0.055);
+
+    --well: #171c29;
+    --scrim: rgba(8, 11, 18, 0.88);
 }
 
-/* Pure-CSS fallback for no-JS: follow the system when no data-theme is set */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) {
-        color-scheme: dark;
-        --bg: #1b2436;
-        --surface: #232e45;
-        --surface-hover: #2a3752;
-        --well: #161e2f;
-        --text-primary: #e9eef8;
-        --text-secondary: #95a5c0;
-        --accent: #e5324f;
-        --accent-hover: #f2506c;
-        --on-accent: #ffffff;
-        --status-ok: #45d482;
-        --status-warn: #e0aa45;
-        --status-err: #f06a6a;
-        --status-off: #6d7d99;
-        --viewfinder-bg: #0a0f1a;
-        --badge-bg: rgba(12, 17, 28, 0.94);
-        --badge-text: #e9eef8;
-        --shadow-dark: rgba(4, 8, 18, 0.55);
-        --shadow-dark-soft: rgba(4, 8, 18, 0.38);
-        --shadow-light: rgba(159, 183, 222, 0.09);
-        --accent-shadow: rgba(3, 6, 14, 0.6);
-        --accent-press: rgba(0, 0, 0, 0.7);
-        --accent-hi: rgba(255, 255, 255, 0.07);
-    }
-}
-
-/* -------------------------------------------------------------- Foundation */
+/* ------------------------------------------------------------------- Base */
 
 * {
     box-sizing: border-box;
@@ -167,7 +102,7 @@ html {
 
 body {
     background-color: var(--bg);
-    color: var(--text-primary);
+    color: var(--ink);
     font-family: var(--font-main);
     font-size: 17px;
     line-height: 1.5;
@@ -180,23 +115,22 @@ body {
 
 ::selection {
     background: var(--accent);
-    color: var(--on-accent);
+    color: var(--accent-ink);
 }
 
 /* Keyboard focus — loud and unmissable */
 :focus-visible {
     outline: 3px solid var(--accent);
-    outline-offset: 4px;
-    border-radius: 6px;
+    outline-offset: 3px;
 }
 
 /* Skip link for keyboard / screen-reader users */
 .skip-link {
     position: absolute;
-    top: -72px;
+    top: -64px;
     inset-inline-start: var(--outer);
-    background: var(--text-primary);
-    color: var(--bg);
+    background: var(--accent);
+    color: var(--accent-ink);
     padding: 12px 18px;
     font-weight: 700;
     border-radius: var(--radius-sm);
@@ -207,30 +141,13 @@ body {
     top: 12px;
 }
 
-/* Neumorphic scrollbars */
-::-webkit-scrollbar {
-    width: 14px;
-    height: 14px;
-}
-::-webkit-scrollbar-track {
-    background: var(--bg);
-}
-::-webkit-scrollbar-thumb {
-    background: var(--surface);
-    border-radius: 8px;
-    box-shadow: var(--neu-inset-sm);
-}
-::-webkit-scrollbar-thumb:hover {
-    background: var(--surface-hover);
-}
-
 /* ---------------------------------------------------------------- Header */
 
 .app-header {
     max-width: var(--maxw);
     width: 100%;
     margin-inline: auto;
-    padding: var(--outer) var(--outer) 8px;
+    padding: var(--outer) var(--outer) 6px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -241,20 +158,22 @@ body {
 .brand {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
+    min-width: 0;
 }
 
 .brand-badge {
-    width: 54px;
-    height: 54px;
+    width: 52px;
+    height: 52px;
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--surface);
-    border-radius: 50%;
+    border-radius: 16px;
+    background: var(--bg);
     box-shadow: var(--neu-raised-sm);
     color: var(--accent);
+    transition: box-shadow 0.2s ease, color 0.35s ease;
 }
 
 .brand-mark {
@@ -263,29 +182,33 @@ body {
 }
 
 .brand-name {
-    font-size: clamp(23px, 2.4vw, 29px);
+    font-size: clamp(22px, 2.4vw, 28px);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.1;
 }
 
-.header-actions {
+.header-side {
     display: flex;
     align-items: center;
     gap: 14px;
     flex-wrap: wrap;
 }
 
+/* ---------------------------------------------------------- Status chip */
+
 .status-chip {
     display: flex;
     align-items: center;
     gap: 10px;
     background: var(--well);
-    box-shadow: var(--neu-inset-sm);
-    padding: 10px 18px;
+    box-shadow: var(--neu-pressed-sm);
+    padding: 12px 20px;
     border-radius: 999px;
     font-size: 15px;
     font-weight: 700;
+    color: var(--ink);
+    transition: box-shadow 0.2s ease, background-color 0.35s ease;
 }
 
 .status-dot {
@@ -293,90 +216,93 @@ body {
     height: 12px;
     border-radius: 50%;
     background: var(--status-off);
-    box-shadow: 0 0 0 3px var(--bg);
     flex-shrink: 0;
 }
 
-/* ----------------------------------------------------- Theme switch (toggle) */
+/* ------------------------------------------------------- Theme toggle */
 
-.theme-switch {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    background: none;
-    border: none;
-    padding: 6px 4px;
-    font-family: var(--font-main);
+.theme-toggle {
+    border: 0;
+    background: transparent;
+    padding: 0;
     cursor: pointer;
-    color: var(--text-secondary);
-}
-
-.switch-caption {
-    font-size: 15px;
-    font-weight: 700;
-}
-
-.switch-track {
-    width: 62px;
-    height: 34px;
-    flex-shrink: 0;
     border-radius: 999px;
-    background: var(--well);
-    box-shadow: var(--neu-inset-sm);
-    position: relative;
-    transition: background-color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.switch-thumb {
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--surface);
-    box-shadow: var(--neu-raised-sm);
+.theme-toggle .tt-track {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    width: 84px;
+    height: 44px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--well);
+    box-shadow: var(--neu-pressed-sm);
+    transition: box-shadow 0.2s ease, background-color 0.35s ease;
+}
+
+.theme-toggle .tt-icon {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    color: var(--ink-2);
+    transition: color 0.4s ease, transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.4s ease;
+}
+
+.theme-toggle .tt-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* The knob — a raised circle that slides across the pressed track */
+.theme-toggle .tt-knob {
+    position: absolute;
+    top: 4px;
+    inset-inline-start: 4px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: var(--neu-raised-sm);
+    transition:
+        transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1),
+        box-shadow 0.2s ease,
+        background-color 0.35s ease;
+}
+
+/* Light state: sun lit, knob parked left */
+[data-theme="light"] .theme-toggle .tt-sun {
     color: var(--accent);
-    transition: transform 0.25s ease, background-color 0.3s ease,
-        color 0.3s ease, box-shadow 0.25s ease;
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+}
+[data-theme="light"] .theme-toggle .tt-moon {
+    transform: rotate(-90deg) scale(0.6);
+    opacity: 0.45;
 }
 
-.switch-thumb svg {
-    width: 15px;
-    height: 15px;
+/* Dark state: moon lit, knob slides right (RTL-aware) */
+[data-theme="dark"] .theme-toggle .tt-knob {
+    transform: translateX(40px);
+}
+[data-theme="dark"] .theme-toggle .tt-sun {
+    transform: rotate(90deg) scale(0.6);
+    opacity: 0.45;
+}
+[data-theme="dark"] .theme-toggle .tt-moon {
+    color: var(--accent);
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
 }
 
-.theme-switch:hover .switch-thumb {
-    box-shadow: var(--neu-raised);
-}
-
-.theme-switch:active .switch-thumb {
-    transform: scale(0.92);
-}
-
-/* Dark: thumb slides across and takes the accent color */
-:root[data-theme="dark"] .switch-thumb {
-    transform: translateX(28px);
-    background: var(--accent);
-    color: var(--on-accent);
-}
-
-:root[data-theme="dark"] .theme-switch:active .switch-thumb {
-    transform: translateX(28px) scale(0.92);
-}
-
-/* One icon per theme */
-.switch-thumb .icon-moon {
-    display: none;
-}
-:root[data-theme="dark"] .switch-thumb .icon-sun {
-    display: none;
-}
-:root[data-theme="dark"] .switch-thumb .icon-moon {
-    display: block;
+/* Pressed feedback */
+.theme-toggle:active .tt-knob {
+    box-shadow: var(--neu-pressed-sm);
 }
 
 /* ------------------------------------------------------------------ Main */
@@ -400,18 +326,18 @@ body {
 }
 
 .panel {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    padding: clamp(20px, 2.4vw, 30px);
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: clamp(18px, 2.4vw, 28px);
     box-shadow: var(--neu-raised);
-    transition: background-color 0.35s ease, box-shadow 0.35s ease;
+    transition: box-shadow 0.2s ease, background-color 0.35s ease;
 }
 
 .panel-title {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
     margin-bottom: 16px;
-    color: var(--text-primary);
+    color: var(--ink);
 }
 
 /* -------------------------------------------------------------- Viewfinder */
@@ -421,9 +347,9 @@ body {
     width: 100%;
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    background: var(--viewfinder-bg);
-    border-radius: var(--radius-md);
-    box-shadow: var(--neu-inset-sm);
+    background: #10141d;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--neu-pressed);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -443,22 +369,6 @@ body {
     pointer-events: none;
 }
 
-/* "Camera off" placeholder (toggled by theme.js — harmless if it never runs) */
-.viewfinder.is-off::after {
-    content: "Camera is off — press C or the camera button to start";
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 24px;
-    color: var(--text-secondary);
-    font-size: 17px;
-    font-weight: 600;
-    pointer-events: none;
-}
-
 .view-controls {
     position: absolute;
     top: 14px;
@@ -470,19 +380,18 @@ body {
 }
 
 .icon-button {
-    width: 54px;
-    height: 54px;
+    width: 56px;
+    height: 56px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--surface);
-    color: var(--text-primary);
-    border: none;
+    background: var(--bg);
+    color: var(--ink);
+    border: 0;
     border-radius: 50%;
     box-shadow: var(--neu-raised-sm);
     cursor: pointer;
-    transition: box-shadow 0.18s ease, background-color 0.25s ease,
-        color 0.18s ease, transform 0.12s ease;
+    transition: box-shadow 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .icon-button svg {
@@ -491,24 +400,24 @@ body {
 }
 
 .icon-button:hover {
-    background: var(--surface-hover);
-    box-shadow: var(--neu-raised);
     color: var(--accent);
 }
 
+/* Pressed-in "active" feel */
 .icon-button:active {
-    transform: scale(0.96);
-    box-shadow: var(--neu-pressed);
+    box-shadow: var(--neu-pressed-sm);
     color: var(--accent);
+    transform: scale(0.97);
 }
 
 .detection-badge {
     position: absolute;
     bottom: 14px;
     inset-inline: 14px;
-    background: var(--badge-bg);
-    color: var(--badge-text);
-    padding: 13px 18px;
+    background: var(--scrim);
+    color: #eef2fa;
+    box-shadow: var(--neu-pressed-sm);
+    padding: 12px 18px;
     border-radius: var(--radius-sm);
     display: flex;
     justify-content: space-between;
@@ -517,41 +426,42 @@ body {
     font-size: clamp(16px, 1.6vw, 19px);
     font-weight: 700;
     line-height: 1.3;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
 .confidence-tag {
     background: var(--accent);
-    color: var(--on-accent);
+    color: var(--accent-ink);
     padding: 4px 14px;
     border-radius: 999px;
     font-weight: 700;
     font-size: 0.85em;
     font-variant-numeric: tabular-nums;
     flex-shrink: 0;
-    box-shadow: 0 3px 8px var(--accent-shadow);
 }
 
 /* ------------------------------------------------------------ Voice panel */
 
+/* The transcript is output — it sits in an inset well, like a display. */
 .transcript {
     font-size: var(--transcript-size);
     font-weight: 700;
     line-height: 1.45;
-    color: var(--text-primary);
+    color: var(--ink);
+    background: var(--well);
+    box-shadow: var(--neu-pressed);
+    border-radius: var(--radius-sm);
+    padding: 20px 22px;
     min-height: 3.2em;
     overflow-wrap: break-word;
-    background: var(--well);
-    border-radius: var(--radius-md);
-    box-shadow: var(--neu-inset-sm);
-    padding: 18px 20px;
+    transition: box-shadow 0.2s ease, background-color 0.35s ease;
 }
 
 .listening-line {
     margin-top: 20px;
-    padding-top: 4px;
+    padding-inline-start: 4px;
     font-size: 15px;
-    color: var(--text-secondary);
+    font-weight: 600;
+    color: var(--ink-2);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -564,14 +474,13 @@ body {
     border-radius: 50%;
     background: var(--accent);
     flex-shrink: 0;
-    box-shadow: 0 0 0 3px var(--surface);
-    animation: mic-pulse 1.6s ease-out infinite;
+    animation: mic-pulse 1.8s ease-out infinite;
 }
 
 @keyframes mic-pulse {
-    0% { box-shadow: 0 0 0 0 var(--accent-shadow); }
-    70% { box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+    70% { box-shadow: 0 0 0 10px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 /* ---------------------------------------------------------- Controls panel */
@@ -592,11 +501,11 @@ body {
     font-family: var(--font-main);
     font-size: 17px;
     font-weight: 700;
-    border: none;
-    border-radius: var(--radius-md);
+    border: 0;
+    border-radius: 999px;
+    box-shadow: var(--neu-raised);
     cursor: pointer;
-    transition: box-shadow 0.18s ease, background-color 0.25s ease,
-        color 0.18s ease, transform 0.12s ease;
+    transition: box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .button svg {
@@ -606,33 +515,30 @@ body {
 }
 
 .button:active {
-    transform: scale(0.98);
+    box-shadow: var(--neu-pressed);
+    transform: scale(0.99);
 }
 
 .button-primary {
     background: var(--accent);
-    color: var(--on-accent);
-    box-shadow: var(--neu-accent);
+    color: var(--accent-ink);
 }
 
 .button-primary:hover {
-    background: var(--accent-hover);
-    box-shadow: var(--neu-raised-sm);
+    color: var(--accent-ink);
+    filter: brightness(1.07);
 }
 
 .button-primary:active {
-    box-shadow: var(--neu-accent-pressed);
+    box-shadow: var(--neu-pressed);
 }
 
 .button-secondary {
-    background: var(--surface);
-    color: var(--text-primary);
-    box-shadow: var(--neu-raised-sm);
+    background: var(--bg);
+    color: var(--ink);
 }
 
 .button-secondary:hover {
-    background: var(--surface-hover);
-    box-shadow: var(--neu-raised);
     color: var(--accent);
 }
 
@@ -640,41 +546,15 @@ body {
     box-shadow: var(--neu-pressed);
 }
 
-/* ---------------------------------------------------------------- Footer */
-
-.app-footer {
-    max-width: var(--maxw);
-    width: 100%;
-    margin-inline: auto;
-    padding: 24px var(--outer) 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    font-size: 15px;
-    color: var(--text-secondary);
-}
-
-.footer-keys {
-    font-weight: 600;
-}
-
-kbd {
-    font-family: var(--font-main);
-    font-weight: 700;
-    font-size: 0.85em;
-    color: var(--text-primary);
-    background: var(--well);
-    box-shadow: var(--neu-inset-sm);
-    border-radius: 8px;
-    padding: 3px 10px;
-}
-
 /* ------------------------------------------------------------- Responsive */
 
 @media (max-width: 960px) {
     .app-main {
+        grid-template-columns: 1fr;
+    }
+
+    .rail {
+        display: grid;
         grid-template-columns: 1fr;
     }
 }
@@ -686,45 +566,44 @@ kbd {
 
     .app-header {
         padding-top: 18px;
+        gap: 12px;
     }
 
-    .header-actions {
+    .header-side {
         width: 100%;
         justify-content: space-between;
+        gap: 10px;
     }
 
     .status-chip {
-        font-size: 14px;
-        padding: 9px 14px;
+        font-size: 13px;
+        padding: 10px 14px;
+        flex: 1;
+        justify-content: center;
     }
 
-    .switch-caption {
-        font-size: 14px;
+    .theme-toggle .tt-track {
+        width: 76px;
+        height: 40px;
     }
 
-    .icon-button {
-        width: 48px;
-        height: 48px;
+    .theme-toggle .tt-knob {
+        width: 32px;
+        height: 32px;
     }
 
-    .brand-badge {
-        width: 46px;
-        height: 46px;
-    }
-
-    .brand-mark {
-        width: 24px;
-        height: 24px;
+    [data-theme="dark"] .theme-toggle .tt-knob {
+        transform: translateX(36px);
     }
 
     .panel {
         padding: 18px;
-        border-radius: var(--radius-md);
+        border-radius: 18px;
     }
 
-    .app-footer {
-        flex-direction: column;
-        align-items: flex-start;
+    .icon-button {
+        width: 50px;
+        height: 50px;
     }
 }
 
@@ -739,12 +618,25 @@ kbd {
         animation: none;
     }
 
-    body,
-    .panel,
-    .switch-thumb,
+    .theme-toggle .tt-knob,
+    .theme-toggle .tt-icon,
     .icon-button,
     .button,
-    .skip-link {
+    .skip-link,
+    body {
         transition: none;
+    }
+}
+
+/* RTL: knob slides toward the opposite physical side */
+[dir="rtl"][data-theme="dark"] .theme-toggle .tt-knob {
+    transform: translateX(-40px);
+}
+[dir="rtl"][data-theme="dark"] .theme-toggle .tt-knob {
+    transform: translateX(-36px);
+}
+@media (min-width: 521px) {
+    [dir="rtl"][data-theme="dark"] .theme-toggle .tt-knob {
+        transform: translateX(-40px);
     }
 }

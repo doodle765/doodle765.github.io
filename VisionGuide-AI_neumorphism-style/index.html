@@ -5,22 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VisionGuide AI — Visual Perception Assistant</title>
     <meta name="description" content="VisionGuide AI — an offline visual perception assistant. Point the camera at anything; it speaks what it sees, in English or Urdu.">
-    <meta name="theme-color" id="meta-theme-color" content="#e7ecf4">
-
-    <!-- Set theme before first paint: saved choice wins, otherwise follow the system. -->
-    <script>
-        (function () {
-            var t = null;
-            try { t = localStorage.getItem("vg-theme"); } catch (e) {}
-            if (t !== "light" && t !== "dark") {
-                t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
-            }
-            document.documentElement.setAttribute("data-theme", t);
-            var meta = document.getElementById("meta-theme-color");
-            if (meta) meta.setAttribute("content", t === "dark" ? "#1b2436" : "#e7ecf4");
-        })();
-    </script>
-
+    <meta name="theme-color" id="meta-theme-color" content="#e4e9f1">
     <link rel="stylesheet" href="style.css">
     <!-- Local Offline TensorFlow.js & COCO-SSD -->
     <script src="lib/tf.min.js"></script>
@@ -41,26 +26,27 @@
             <h1 class="brand-name">VisionGuide AI</h1>
         </div>
 
-        <div class="header-actions">
+        <div class="header-side">
             <p class="status-chip" role="status">
                 <span class="status-dot" id="system-status-dot"></span>
                 <span id="status-text">Loading Local Model...</span>
             </p>
 
-            <button id="theme-toggle-btn" class="theme-switch" type="button"
-                    role="switch" aria-checked="false" aria-label="Dark mode: off"
-                    title="Switch to dark mode">
-                <span class="switch-caption">Dark mode</span>
-                <span class="switch-track" aria-hidden="true">
-                    <span class="switch-thumb">
-                        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Theme toggle: animated light/dark switch, follows system theme by default -->
+            <button id="theme-toggle" class="theme-toggle" role="switch" aria-checked="false" aria-label="Switch between dark and light mode">
+                <span class="tt-track">
+                    <span class="tt-icon tt-sun" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="4"></circle>
                             <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
                         </svg>
-                        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    </span>
+                    <span class="tt-icon tt-moon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                         </svg>
                     </span>
+                    <span class="tt-knob" aria-hidden="true"></span>
                 </span>
             </button>
         </div>
@@ -106,7 +92,7 @@
                 </p>
                 <p class="listening-line">
                     <span class="mic-dot" aria-hidden="true"></span>
-                    Try Saying "Laguage", "Urdu" or "English".
+                    Microphone is listening — say &ldquo;switch to Urdu&rdquo; or &ldquo;switch to English&rdquo;.
                 </p>
             </section>
 
@@ -133,10 +119,6 @@
             </section>
         </div>
     </main>
-
-    <footer class="app-footer">
-        
-    </footer>
 
     <script src="lib/tf.min.js"></script>
     <script src="lib/coco-ssd.min.js"></script>
