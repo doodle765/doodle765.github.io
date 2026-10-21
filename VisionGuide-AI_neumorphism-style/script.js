@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Self-Healing Voice Command Loop (Bypasses network errors when offline)
+    // Self-Healing Voice Command Loop
     async function initOfflineVoiceCommands() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
